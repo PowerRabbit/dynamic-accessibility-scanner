@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import easyWaf from 'easy-waf';
 import helmet from 'helmet';
+import { browserService } from './services/browser/browser.service';
 
 const envPath = path.join(__dirname, '..', 'public.env');
 
@@ -34,11 +35,13 @@ app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false }));
 
 const router = express.Router();
-app.use(router)
+app.use(router);
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);
 });
+
+browserService.start();
 
 process.on('uncaughtException', (er) => {
     console.error('Uncaught Exception:', er.message);
