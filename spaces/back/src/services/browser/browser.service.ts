@@ -1,23 +1,30 @@
-import puppeteer, { Browser } from "puppeteer";
+import puppeteer, { Browser, Page } from "puppeteer";
+import axeCore from 'axe-core';
+import { AxeResults } from 'axe-core';
 
 class BrowserClass {
 
     private browser?: Browser;
+    private page?: Page;
 
     async start(): Promise<void> {
+        await this.getBrowser();
+    }
 
-        const browser = await this.getBrowser();
+    async scanPage(url: string): Promise<AxeResults> {
 
-          const page = await browser.newPage();
-          await page.goto('about:blank');
+        const page = await this.getPage();
 
-          const dimensions = await page.evaluate(() => ({
-            width: window.innerWidth,
-            height: window.innerHeight,
-            devicePixelRatio: window.devicePixelRatio
-          }));
+        await page.goto(url);
+        await page.addScriptTag({
+            content: axeCore.source,
+        });
 
-          console.log('Viewport dimensions:', dimensions);
+        const results: AxeResults = await page.evaluate(async () => {
+            return await (window as any).axe.run();
+        });
+
+        return results;
     }
 
     async stop(): Promise<void> {
@@ -27,15 +34,22 @@ class BrowserClass {
     private async getBrowser(): Promise<Browser> {
         if (!this.browser) {
             this.browser = await puppeteer.launch({
-                headless: false,
+            //    headless: false,
                 defaultViewport: {
-                  width: 1280,
-                  height: 800
+                    width: 1280,
+                    height: 800
                 }
-              });
+            });
         }
-
         return this.browser;
+    }
+
+    private async getPage(): Promise<Page> {
+        if (!this.page) {
+            const browser = await this.getBrowser();
+            this.page = await browser.newPage();
+        }
+        return this.page;
     }
 
 }

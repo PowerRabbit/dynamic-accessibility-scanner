@@ -15,11 +15,12 @@
         "typescript": "5.8.3"
     },
     "dependencies": {
-        "cors": "^2.8.5",
-        "dotenv": "^16.5.0",
-        "easy-waf": "^0.6.0",
+        "axe-core": "4.10.3",
+        "cors": "2.8.5",
+        "dotenv": "16.5.0",
+        "easy-waf": "0.6.0",
         "express": "5.1.0",
-        "helmet": "^8.1.0",
-        "puppeteer": "^24.10.2"
+        "helmet": "8.1.0",
+        "puppeteer": "24.10.2"
     }
 }

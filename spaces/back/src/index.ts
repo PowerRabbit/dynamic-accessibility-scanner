@@ -4,7 +4,9 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import easyWaf from 'easy-waf';
 import helmet from 'helmet';
+import fs from 'fs';
 import { browserService } from './services/browser/browser.service';
+import { setRoutes } from './routes/main/main.routes';
 
 const envPath = path.join(__dirname, '..', 'public.env');
 
@@ -15,7 +17,7 @@ const port = process.env.PORT;
 const app = express();
 
 app.use(easyWaf({
-    allowedHTTPMethods: ['GET', 'OPTIONS'],
+    allowedHTTPMethods: ['GET', 'POST', 'OPTIONS'],
 }));
 app.use(helmet());
 app.disable( 'x-powered-by' );
@@ -26,7 +28,7 @@ const customHeaders = (_req: Request, res: Response, next: NextFunction)  => {
 app.use( customHeaders );
 app.use(cors({
     origin: [process.env.FRNT_SRV as string],
-    methods: ['GET'],
+    methods: ['GET', 'POST'],
     credentials: true,
     allowedHeaders: 'Origin, Accept, Content-Type, x-requested-with, cache-control',
     maxAge: 86400,
@@ -37,11 +39,30 @@ app.use(express.urlencoded({ extended: false }));
 const router = express.Router();
 app.use(router);
 
+setRoutes(router);
+
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);
 });
 
-browserService.start();
+browserService.start().then(async () => {
+    const results = await browserService.scanPage('https://vigintiverus.com');
+
+    const { incomplete, violations } = results;
+
+    fs.writeFileSync(
+        'temp/axe-results.json',
+        JSON.stringify({
+            incomplete,
+            violations
+        }, null, 2),
+        'utf-8'
+    );
+
+    await browserService.stop();
+
+    console.log('done');
+});
 
 process.on('uncaughtException', (er) => {
     console.error('Uncaught Exception:', er.message);
