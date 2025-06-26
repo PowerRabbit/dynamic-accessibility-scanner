@@ -1,6 +1,7 @@
 import puppeteer, { Browser, Page } from "puppeteer";
 import axeCore from 'axe-core';
 import { AxeResults } from 'axe-core';
+import { ScanError, scanErrorFactory } from "./scan-error.factory";
 
 class BrowserClass {
 
@@ -11,20 +12,25 @@ class BrowserClass {
         await this.getBrowser();
     }
 
-    async scanPage(url: string): Promise<AxeResults> {
+    async scanPage(url: string): Promise<AxeResults | ScanError> {
 
-        const page = await this.getPage();
+        try {
+            const page = await this.getPage();
 
-        await page.goto(url);
-        await page.addScriptTag({
-            content: axeCore.source,
-        });
+            await page.goto(url);
+            await page.addScriptTag({
+                content: axeCore.source,
+            });
 
-        const results: AxeResults = await page.evaluate(async () => {
-            return await (window as any).axe.run();
-        });
+            const results: AxeResults = await page.evaluate(async () => {
+                return await (window as any).axe.run();
+            });
 
-        return results;
+            return results;
+
+        } catch(e) {
+            return scanErrorFactory(e, {url});
+        }
     }
 
     async stop(): Promise<void> {

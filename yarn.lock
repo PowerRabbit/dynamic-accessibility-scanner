@@ -3869,6 +3869,7 @@ __metadata:
   dependencies:
     "@eslint/js": "npm:9.29.0"
     eslint: "npm:9.29.0"
+    eslint-plugin-react-hooks: "npm:^5.2.0"
     typescript-eslint: "npm:^8.35.0"
   languageName: unknown
   linkType: soft

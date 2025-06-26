@@ -4,8 +4,6 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import easyWaf from 'easy-waf';
 import helmet from 'helmet';
-import fs from 'fs';
-import { browserService } from './services/browser/browser.service';
 import { setRoutes } from './routes/main/main.routes';
 
 const envPath = path.join(__dirname, '..', 'public.env');
@@ -43,25 +41,6 @@ setRoutes(router);
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);
-});
-
-browserService.start().then(async () => {
-    const results = await browserService.scanPage('https://vigintiverus.com');
-
-    const { incomplete, violations } = results;
-
-    fs.writeFileSync(
-        'temp/axe-results.json',
-        JSON.stringify({
-            incomplete,
-            violations
-        }, null, 2),
-        'utf-8'
-    );
-
-    await browserService.stop();
-
-    console.log('done');
 });
 
 process.on('uncaughtException', (er) => {
