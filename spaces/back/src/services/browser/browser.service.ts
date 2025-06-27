@@ -35,6 +35,8 @@ class BrowserClass {
 
     async stop(): Promise<void> {
         (await this.getBrowser()).close();
+        delete this.browser;
+        delete this.page;
     }
 
     private async getBrowser(): Promise<Browser> {
