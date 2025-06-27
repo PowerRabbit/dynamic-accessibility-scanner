@@ -28,6 +28,21 @@ const colorsImpact: Record<string, string> = {
     'critical': 'red.700',
 };
 
+const severityOrder: Record<string, number> = {
+    critical: 4,
+    serious: 3,
+    moderate: 2,
+    minor: 1,
+};
+
+const sortByImpactSeverity = (issues: AccessibilityIssue[]): AccessibilityIssue[] => {
+    return [...issues].sort((a, b) => {
+        const aPriority = severityOrder[a.impact] ?? 0;
+        const bPriority = severityOrder[b.impact] ?? 0;
+        return bPriority - aPriority;
+    });
+};
+
 const ScanPage = () => {
     const [url, setUrl] = useState('');
     const [inProgress, setInProgress] = useState(false);
@@ -65,7 +80,9 @@ const ScanPage = () => {
         });
 
         setInProgress(false);
-        setViolations(result.violations);
+        setViolations(
+            sortByImpactSeverity(result.violations)
+        );
     };
 
     return <>
