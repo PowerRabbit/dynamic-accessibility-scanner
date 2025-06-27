@@ -1,3 +1,26 @@
 .tabs-wrapper {
     margin: 10rem 0 0 0;
 }
+
+.result {
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 1px solid #ccc;
+}
+
+.tabs-wrapper h2 {
+    font-size: 150%;
+}
+
+.chakra-tooltip {
+    font-size: 200%;
+}
+
+.result li {
+    margin: 0.5rem 0;
+    font-size: 80%;
+}
+.result li span {
+    background-color: #ccc;
+    padding: 2px 5px;
+}

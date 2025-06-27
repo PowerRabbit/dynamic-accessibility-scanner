@@ -6,6 +6,7 @@ import NotFoundPage from './pages/404/404.page';
 function App() {
     return (
         <>
+            <span id="newTabInformer" hidden>Link opens in a new tab</span>
             <Routes>
                 <Route path="/" element={<ScanPage />} />
 
