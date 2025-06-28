@@ -2,36 +2,6 @@
     margin: 10rem 0 0 0;
 }
 
-.result {
-    text-align: left;
-    padding: 1rem;
-    border-bottom: 1px solid #ccc;
-}
-
 .tabs-wrapper h2 {
     font-size: 150%;
-}
-
-.chakra-tooltip {
-    font-size: 200%;
-}
-
-.result h3 {
-    margin-top: 1rem;
-}
-
-.result ul {
-    margin-bottom: 1rem;
-}
-.result li {
-    margin: 0.5rem 0;
-    font-size: 80%;
-}
-.result li span {
-    background-color: #ccc;
-    padding: 2px 5px;
-}
-.result li span::selection {
-    background-color: yellow;
-    color: black;
 }
