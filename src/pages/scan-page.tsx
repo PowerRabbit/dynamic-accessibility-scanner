@@ -1,5 +1,5 @@
 import ScanPage from "@/app/components/scan/scan.page";
-import { Provider } from "@/components/ui/provider";
+import { Provider } from "@/app/components/ui/provider";
 
 const ScanPageP = () =>  <Provider><ScanPage /></Provider>
 
