@@ -1,17 +1,35 @@
 {
-    "scripts": {
-        "back": "yarn workspace das-back",
-        "front": "yarn workspace das-front"
-    },
-    "packageManager": "yarn@4.9.2+sha512.1fc009bc09d13cfd0e19efa44cbfc2b9cf6ca61482725eb35bbc5e257e093ebf4130db6dfe15d604ff4b79efd8e1e8e99b25fa7d0a6197c9f9826358d4d65c3c",
-    "workspaces": [
-        "spaces/back",
-        "spaces/front"
-    ],
-    "devDependencies": {
-        "@eslint/js": "9.29.0",
-        "eslint": "9.29.0",
-        "eslint-plugin-react-hooks": "^5.2.0",
-        "typescript-eslint": "^8.35.0"
-    }
+  "name": "dyn-acc-scan",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev-turbo": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@chakra-ui/react": "^3.21.1",
+    "@emotion/react": "^11.14.0",
+    "axe-core": "^4.10.3",
+    "next": "15.3.4",
+    "next-themes": "^0.4.6",
+    "puppeteer": "^24.11.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.4",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "packageManager": "yarn@4.9.2+sha512.1fc009bc09d13cfd0e19efa44cbfc2b9cf6ca61482725eb35bbc5e257e093ebf4130db6dfe15d604ff4b79efd8e1e8e99b25fa7d0a6197c9f9826358d4d65c3c"
 }
