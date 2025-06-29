@@ -26,7 +26,11 @@ class BrowserClass {
             });
 
             const results: AxeResults = await page.evaluate(async () => {
-                return await (window as any).axe.run();
+                return await (window as unknown as {
+                    axe: {
+                        run: () => Promise<AxeResults>;
+                    }
+                }).axe.run();
             });
 
             return results;

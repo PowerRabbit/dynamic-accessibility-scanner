@@ -1,4 +1,4 @@
-This is a simple accessibility scanner, using axe-core under the hood.
+This is a simple accessibility scanner, that uses axe-core under the hood.
 
 ## Getting Started
 
@@ -7,9 +7,16 @@ This is a simple accessibility scanner, using axe-core under the hood.
 npm i
 ```
 
-### Run the development server
+### Build & Run
 
-First, run the development server:
+```bash
+npm run build
+```
+```bash
+npm start
+```
+
+### OR run in development mode
 
 ```bash
 npm run dev
