@@ -1,5 +1,7 @@
 This is a simple accessibility scanner, that uses axe-core under the hood.
 
+![image](https://github.com/user-attachments/assets/a4deef34-3bbf-4778-9b34-bb94f40393d1)
+
 ## Getting Started
 
 ### Install the dependencies
