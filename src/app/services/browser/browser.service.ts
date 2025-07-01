@@ -49,13 +49,34 @@ class BrowserClass {
 
     async startPageViewMode(url: string): Promise<void | ScanError> {
         try {
-            const page = await this.getPage();
-            await page.setBypassCSP(true);
-            await page.goto(url, { waitUntil: 'domcontentloaded' });
+            const page = await this.initPageWithUrl(url);
 
-            await page.addScriptTag({
-                url: 'http://localhost:3000/api/axe-static',
+            const setUi = async () => {
+                await page.addScriptTag({
+                    url: 'http://localhost:3000/scripts/scanner-ui.js',
+                });
+
+                await page.evaluate(async () => {
+                    (window as unknown as {
+                        dynamicAccessibilityScanner: {
+                            init: () => void;
+                        }
+                    }).dynamicAccessibilityScanner.init();
+                });
+            };
+
+            await setUi();
+
+            page.on('framenavigated', async (frame) => {
+                if (frame === page.mainFrame()) {
+                    await page.addScriptTag({
+                        url: 'http://localhost:3000/api/axe-static',
+                    });
+
+                    await setUi();
+                }
             });
+
         } catch(e) {
             return scanErrorFactory(e, {url});
         }
@@ -73,7 +94,6 @@ class BrowserClass {
         return page;
     }
 
-
     private async getBrowser(options?: InitOptionsType): Promise<Browser> {
         if (!this.browser) {
             const { headless } = options ? options : defaultBrowserOptions;
@@ -81,10 +101,16 @@ class BrowserClass {
             this.browser = await puppeteer.launch({
                 args: ['--no-sandbox', '--disable-setuid-sandbox'],
                 headless,
-                defaultViewport: {
+                defaultViewport: null,
+                /* defaultViewport: {
                     width: 1280,
                     height: 800
-                }
+                } */
+            });
+
+            this.browser.on('disconnected', () => {
+                delete this.browser;
+                delete this.page;
             });
         }
         return this.browser;

@@ -28,7 +28,7 @@ export const UrlForm: FC<{ submit: (url: string, live: boolean) => void, inProgr
                 </Field.Root>
                 <HStack>
                     <Button type="submit" data-type="scan">Run Scan</Button>
-                    <Button type="submit" data-type="live" disabled>Open live scanner</Button>
+                    <Button type="submit" data-type="live">Open live scanner</Button>
                 </HStack >
                 {inProgress && <p><Spinner/> Loading...</p>}
             </Stack>
