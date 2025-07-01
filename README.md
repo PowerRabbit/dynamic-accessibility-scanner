@@ -1,6 +1,12 @@
-This is a simple accessibility scanner, that uses axe-core under the hood.
+# This is a simple accessibility scanner, that uses axe-core under the hood.
 
-![image](https://github.com/user-attachments/assets/a4deef34-3bbf-4778-9b34-bb94f40393d1)
+## Get a quick overview of accessibility issues on the page.
+
+![image](https://github.com/user-attachments/assets/5616187d-c466-4ff5-8159-e16a32828de5)
+
+## You can also use Live Mode to see the issues directly in the console.
+
+![image](https://github.com/user-attachments/assets/d2885cd2-07b4-4e8b-9a6c-e2afe9f2d655)
 
 ## Getting Started
 
