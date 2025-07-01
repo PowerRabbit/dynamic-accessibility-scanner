@@ -9,12 +9,25 @@
         top: 20px;
         font-size: 20px;
         z-index: 2147483647;
+        padding: 10px;
     `;
 
-    const scan = async () => {
-        const results = await window.axe.run();
+    const transformViolations = (violations) => {
 
-        console.log(results);
+        return violations.map(v => {
+            v.nodes = v.nodes.map(n => {
+                return n.target.length < 2 ? document.querySelector(n.target[0]) : n.target.map(t => document.querySelector(t));
+            })
+            return v;
+        })
+    }
+
+    const scan = async () => {
+        const { incomplete, violations } = await window.axe.run();
+        console.log('---Violations---');
+        console.log(transformViolations(violations));
+        console.log('---Incomplete---');
+        console.log(transformViolations(incomplete));
     }
 
     const showUi = () => {

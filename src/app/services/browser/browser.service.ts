@@ -99,7 +99,11 @@ class BrowserClass {
             const { headless } = options ? options : defaultBrowserOptions;
 
             this.browser = await puppeteer.launch({
-                args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--start-maximized',
+                ],
                 headless,
                 defaultViewport: null,
                 /* defaultViewport: {
