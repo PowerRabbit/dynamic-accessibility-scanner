@@ -2,19 +2,12 @@
 
 import { useState } from "react";
 import './scan.page.css';
-import {
-    Button,
-    Spinner,
-    Field,
-    Input,
-    Stack,
-    HStack,
-    Tabs,
-} from "@chakra-ui/react";
+import { Tabs } from "@chakra-ui/react";
 import type { AccessibilityIssue } from "./scan.types";
 import ScanPageContext from "./scan.context";
 import { communicationService } from "@/app/fe-services/communication.service";
 import { ViolationItem } from "../violation-item/violation-item.component";
+import { UrlForm } from "../url-form/url-form.component";
 
 type ScanResult = {
     incomplete: AccessibilityIssue[], violations: AccessibilityIssue[],
@@ -36,19 +29,49 @@ const sortByImpactSeverity = (issues: AccessibilityIssue[]): AccessibilityIssue[
 };
 
 const ScanPage = () => {
-    const [url, setUrl] = useState('');
     const [inProgress, setInProgress] = useState(false);
     const [error, setError] = useState('');
     const [violations, setViolations] = useState<AccessibilityIssue[]>([]);
     const [incompletes, setIncompletes] = useState<AccessibilityIssue[]>([]);
 
-    const onErrorFallback = <T,>(e: unknown): T => {
+    const onScanError = <T,>(e: unknown): T => {
         setError((e as Error).message);
         return { incomplete: [], violations: [] } as T;
     };
 
-    const requestScan = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const onOpenBrowserError = <T,>(e: unknown): T => {
+        setError((e as Error).message);
+        return  undefined as T;
+    };
+
+    const requestScan = async (url: string) => {
+        const result = await communicationService.post<ScanResult>({
+            url: 'scan-page',
+            payload: {
+                url
+            },
+            onErrorFallback: onScanError,
+        });
+
+        setViolations(
+            sortByImpactSeverity(result.violations)
+        );
+        setIncompletes(
+            sortByImpactSeverity(result.incomplete)
+        );
+    }
+
+    const openBrowser = async (url: string) => {
+        await communicationService.post<ScanResult>({
+            url: 'run-view-mode',
+            payload: {
+                url
+            },
+            onErrorFallback: onOpenBrowserError,
+        });
+    }
+
+    const onUrlSubmit = async (url: string, live = false) => {
 
         if (inProgress) {
             return;
@@ -64,21 +87,14 @@ const ScanPage = () => {
 
         setInProgress(true);
 
-        const result = await communicationService.post<ScanResult>({
-            url: 'scan-page',
-            payload: {
-                url
-            },
-            onErrorFallback,
-        });
+        if (live) {
+            await openBrowser(url);
+        } else {
+            await requestScan(url);
+        }
+
 
         setInProgress(false);
-        setViolations(
-            sortByImpactSeverity(result.violations)
-        );
-        setIncompletes(
-            sortByImpactSeverity(result.incomplete)
-        );
     };
 
     const removeEntry = (index: number, type = 'violation') => {
@@ -95,22 +111,9 @@ const ScanPage = () => {
 
     return <div className="page-wrapper">
         <h1>Scan Page</h1>
-        <form onSubmit={requestScan}>
-            <Stack gap="2" align="flex-start" maxW="sm">
-                <Field.Root invalid={!!error}>
-                    <Field.Label>Enter URL</Field.Label>
-                    <Input
-                        placeholder="https://example.com"
-                        onChange={(e) => setUrl(e.target.value)}
-                        value={url} />
-                    <Field.ErrorText>{error}</Field.ErrorText>
-                </Field.Root>
-                <HStack>
-                    <Button type="submit">Run Scan</Button>
-                    {inProgress && <p><Spinner/> Loading...</p>}
-                </HStack >
-            </Stack>
-        </form>
+
+        <UrlForm submit={onUrlSubmit} inProgress={inProgress} error={error}></UrlForm>
+
         <ScanPageContext.Provider value={{ removeEntry }}>
         <div className="tabs-wrapper">
             <Tabs.Root defaultValue="violations">
