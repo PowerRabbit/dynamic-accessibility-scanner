@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from 'react';
 
-type RemoveChildFunction = (id: number) => void;
+type RemoveChildFunction = (id: number, type: string) => void;
 
 type ContextType = {
   removeEntry: RemoveChildFunction;

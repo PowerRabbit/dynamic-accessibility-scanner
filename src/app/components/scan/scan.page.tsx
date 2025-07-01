@@ -17,7 +17,7 @@ import { communicationService } from "@/app/fe-services/communication.service";
 import { ViolationItem } from "../violation-item/violation-item.component";
 
 type ScanResult = {
-    incomplete: unknown[], violations: AccessibilityIssue[],
+    incomplete: AccessibilityIssue[], violations: AccessibilityIssue[],
 };
 
 const severityOrder: Record<string, number> = {
@@ -40,6 +40,7 @@ const ScanPage = () => {
     const [inProgress, setInProgress] = useState(false);
     const [error, setError] = useState('');
     const [violations, setViolations] = useState<AccessibilityIssue[]>([]);
+    const [incompletes, setIncompletes] = useState<AccessibilityIssue[]>([]);
 
     const onErrorFallback = <T,>(e: unknown): T => {
         setError((e as Error).message);
@@ -75,12 +76,21 @@ const ScanPage = () => {
         setViolations(
             sortByImpactSeverity(result.violations)
         );
+        setIncompletes(
+            sortByImpactSeverity(result.incomplete)
+        );
     };
 
-    const removeEntry = (index: number) => {
-        setViolations(
-            [...violations.slice(0, index), ...violations.slice(index + 1)]
-        );
+    const removeEntry = (index: number, type = 'violation') => {
+        if (type === 'violation') {
+            setViolations(
+                [...violations.slice(0, index), ...violations.slice(index + 1)]
+            );
+        } else {
+            setIncompletes(
+                [...incompletes.slice(0, index), ...incompletes.slice(index + 1)]
+            );
+        }
     };
 
     return <div className="page-wrapper">
@@ -109,16 +119,21 @@ const ScanPage = () => {
                         Violations {violations.length > 0 ? `(${violations.length})` : ''}
                     </Tabs.Trigger>
                     <Tabs.Trigger value="incomplete">
-                        Incomplete
+                        Incomplete {incompletes.length > 0 ? `(${incompletes.length})` : ''}
                     </Tabs.Trigger>
                 </Tabs.List>
                 <Tabs.Content value="violations">
                     {!violations.length ? 'No violations'
                         : violations.map((v, i) =>
-                            <ViolationItem key={v.id + i} violation={v} index={i} />
+                            <ViolationItem key={v.id + i} violation={v} index={i} type='violation' />
                         )}
                 </Tabs.Content>
-                <Tabs.Content value="incomplete">No incomplete checks</Tabs.Content>
+                <Tabs.Content value="incomplete">
+                    {!incompletes.length ? 'No incomplete checks'
+                        : incompletes.map((v, i) =>
+                            <ViolationItem key={v.id + i} violation={v} index={i} type='incomplete' />
+                    )}
+                </Tabs.Content>
             </Tabs.Root>
         </div>
         </ScanPageContext.Provider>

@@ -12,6 +12,7 @@ import { ScanPageContextExporter } from '../scan/scan.context';
 
 type ViolationItemProps = {
   violation: AccessibilityIssue;
+  type: string;
   index: number;
 };
 
@@ -22,7 +23,7 @@ const colorsImpact: Record<string, string> = {
     'critical': 'red.700',
 };
 
-export const ViolationItem: FC<ViolationItemProps> = ({ violation: v, index: i }) => {
+export const ViolationItem: FC<ViolationItemProps> = ({ violation: v, index: i, type: t }) => {
     const { removeEntry } = ScanPageContextExporter();
 
     return (
@@ -59,7 +60,7 @@ export const ViolationItem: FC<ViolationItemProps> = ({ violation: v, index: i }
                 }
             </div>
             <div className="actions">
-                <Button type="button" onClick={() => removeEntry(i)}>Remove</Button>
+                <Button type="button" onClick={() => removeEntry(i, t)}>Remove</Button>
             </div>
         </div>
     );
