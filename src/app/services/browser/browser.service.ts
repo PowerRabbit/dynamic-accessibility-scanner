@@ -106,11 +106,13 @@ class BrowserClass {
                 ],
                 headless,
                 defaultViewport: null,
-                /* defaultViewport: {
-                    width: 1280,
-                    height: 800
-                } */
+                executablePath: puppeteer.executablePath(),
+                userDataDir: './.pp-cache',
             });
+                 /* defaultViewport: {
+                     width: 1280,
+                     height: 800
+                 } */
 
             this.browser.on('disconnected', () => {
                 delete this.browser;
