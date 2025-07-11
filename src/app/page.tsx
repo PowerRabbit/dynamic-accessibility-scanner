@@ -1,4 +1,4 @@
-import ScanPage from "@/app/scan/page";
+import ScanPageP from "./scan/page";
 
 export default function Home() {
   return (
@@ -6,7 +6,7 @@ export default function Home() {
         <header className="header"></header>
 
         <main className="content">
-            <ScanPage />
+            <ScanPageP />
         </main>
 
         <footer className="footer"></footer>
