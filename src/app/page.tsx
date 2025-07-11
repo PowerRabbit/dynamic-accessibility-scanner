@@ -1,4 +1,4 @@
-import ScanPage from "@/pages/scan-page";
+import ScanPage from "@/app/scan/page";
 
 export default function Home() {
   return (

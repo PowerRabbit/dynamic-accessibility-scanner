@@ -8,6 +8,7 @@ import ScanPageContext from "./scan.context";
 import { communicationService } from "@/app/fe-services/communication.service";
 import { ViolationItem } from "../violation-item/violation-item.component";
 import { UrlForm } from "../url-form/url-form.component";
+import Link from 'next/link';
 
 type ScanResult = {
     incomplete: AccessibilityIssue[], violations: AccessibilityIssue[],
@@ -113,6 +114,9 @@ const ScanPage = () => {
         <h1>Scan Page</h1>
 
         <UrlForm submit={onUrlSubmit} inProgress={inProgress} error={error}></UrlForm>
+
+        <br></br>
+        <Link href="/settings">Settings</Link>
 
         <ScanPageContext.Provider value={{ removeEntry }}>
         <div className="tabs-wrapper">
