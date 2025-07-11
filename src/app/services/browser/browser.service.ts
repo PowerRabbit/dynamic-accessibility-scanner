@@ -1,10 +1,14 @@
 export const runtime = 'nodejs';
 
-import puppeteer, { Browser, Page } from "puppeteer";
+import puppeteer, { Browser, Page, Viewport } from "puppeteer";
 import { AxeResults } from 'axe-core';
 import { ScanError, scanErrorFactory } from "./scan-error.factory";
 
-export type InitOptionsType = { headless: boolean };
+export type InitOptionsType = {
+    headless: boolean,
+    viewHeight?: number,
+    viewWidth?: number,
+};
 
 const defaultBrowserOptions: InitOptionsType = {
     headless: true,
@@ -96,23 +100,30 @@ class BrowserClass {
 
     private async getBrowser(options?: InitOptionsType): Promise<Browser> {
         if (!this.browser) {
-            const { headless } = options ? options : defaultBrowserOptions;
+            const { headless, viewHeight, viewWidth } = options ? options : defaultBrowserOptions;
+
+            const args = [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ];
+
+            let viewPort: Viewport | null = {
+                width: viewWidth || 1280,
+                height: viewHeight || 800,
+            };
+
+            if (!headless) {
+                args.push('--start-maximized');
+                viewPort = null
+            }
 
             this.browser = await puppeteer.launch({
-                args: [
-                    '--no-sandbox',
-                    '--disable-setuid-sandbox',
-                    '--start-maximized',
-                ],
+                args,
                 headless,
-                defaultViewport: null,
+                defaultViewport: viewPort,
                 executablePath: puppeteer.executablePath(),
                 userDataDir: './.pp-cache',
             });
-                 /* defaultViewport: {
-                     width: 1280,
-                     height: 800
-                 } */
 
             this.browser.on('disconnected', () => {
                 delete this.browser;

@@ -1,5 +1,5 @@
-import { FetchError } from "./communication/fetch-error.class";
-import { DasRequest } from "./communication/request.class";
+import { FetchError } from "./fetch-error.class";
+import { DasRequest } from "./request.class";
 
 type ExpectedErrorContent = {
     message: string;
