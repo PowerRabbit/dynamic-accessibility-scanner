@@ -1,11 +1,10 @@
 import { Button, Field, HStack, Input, Spinner, Stack } from '@chakra-ui/react';
 import { useState, type FC } from 'react';
+
 export const UrlForm: FC<{ submit: (url: string, live: boolean) => void, inProgress: boolean, error: string }> = ({ submit, inProgress, error }) => {
     const [url, setUrl] = useState('');
 
     const onSubmit = (e: React.FormEvent) => {
-        console.log()
-
         e.preventDefault();
 
         if (inProgress) {

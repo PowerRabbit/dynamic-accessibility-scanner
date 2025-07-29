@@ -10,7 +10,6 @@ type ContextType = {
 
 const ScanPageContext = createContext<ContextType>({
     removeEntry: () => {},
-
 });
 
 export const ScanPageContextExporter = () => useContext(ScanPageContext);
