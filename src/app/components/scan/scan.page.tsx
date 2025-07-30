@@ -11,7 +11,9 @@ import { UrlForm } from "../url-form/url-form.component";
 import Link from 'next/link';
 
 type ScanResult = {
-    incomplete: AccessibilityIssue[], violations: AccessibilityIssue[],
+    incomplete: AccessibilityIssue[],
+    violations: AccessibilityIssue[],
+    picture?: string;
 };
 
 const severityOrder: Record<string, number> = {
@@ -32,6 +34,7 @@ const sortByImpactSeverity = (issues: AccessibilityIssue[]): AccessibilityIssue[
 const ScanPage = () => {
     const [inProgress, setInProgress] = useState(false);
     const [error, setError] = useState('');
+    const [picture, setPicture] = useState('');
     const [violations, setViolations] = useState<AccessibilityIssue[]>([]);
     const [incompletes, setIncompletes] = useState<AccessibilityIssue[]>([]);
 
@@ -60,6 +63,8 @@ const ScanPage = () => {
         setIncompletes(
             sortByImpactSeverity(result.incomplete)
         );
+
+        setPicture(result.picture ?? '');
     }
 
     const openBrowser = async (url: string) => {
@@ -121,6 +126,10 @@ const ScanPage = () => {
 
         <br></br>
         <Link href="/settings">Settings</Link>
+
+        {picture ?
+        <img src={`data:image/png;base64,${picture}`} alt="Screenshot of the page" />
+        : ''}
 
         <ScanPageContext.Provider value={{ removeEntry }}>
         <div className="tabs-wrapper">

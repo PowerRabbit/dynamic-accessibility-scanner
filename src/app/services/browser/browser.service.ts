@@ -1,14 +1,21 @@
 export const runtime = 'nodejs';
 
 import puppeteer, { Browser, Page, Viewport } from "puppeteer";
-import { AxeResults } from 'axe-core';
+import axe, { AxeResults } from 'axe-core';
 import { ScanError, scanErrorFactory } from "./scan-error.factory";
+import sharp from "sharp";
 
 export type InitOptionsType = {
     headless: boolean,
     viewHeight?: number,
     viewWidth?: number,
 };
+
+export type ScanResults = {
+    violations: axe.Result[];
+    incomplete: axe.Result[];
+    picture?: string;
+}
 
 const defaultBrowserOptions: InitOptionsType = {
     headless: true,
@@ -26,13 +33,13 @@ class BrowserClass {
         await this.getBrowser(options);
     }
 
-    async scanPage(url: string): Promise<AxeResults | ScanError> {
+    async scanPage(url: string): Promise<ScanResults | ScanError> {
 
         try {
 
             const page = await this.initPageWithUrl(url);
 
-            const results: AxeResults = await page.evaluate(async () => {
+            const { incomplete, violations } =  await page.evaluate(async () => {
                 return await (window as unknown as {
                     axe: {
                         run: () => Promise<AxeResults>;
@@ -40,7 +47,17 @@ class BrowserClass {
                 }).axe.run();
             });
 
-            return results;
+            const screenshotBuffer = await page.screenshot({ type: 'png' });
+            const resizedBuffer = await sharp(screenshotBuffer)
+                .resize({ width: 320 })
+                .toBuffer();
+            const picture = resizedBuffer.toString('base64');
+
+            return {
+                incomplete,
+                violations,
+                picture,
+            };
 
         } catch(e) {
             return scanErrorFactory(e, {url});
