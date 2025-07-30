@@ -18,6 +18,9 @@ class BrowserClass {
 
     private browser?: Browser;
     private page?: Page;
+    private settings = {
+        headless: false,
+    }
 
     async start(options: InitOptionsType): Promise<void> {
         await this.getBrowser(options);
@@ -102,6 +105,8 @@ class BrowserClass {
         if (!this.browser) {
             const { headless, viewHeight, viewWidth } = options ? options : defaultBrowserOptions;
 
+            this.settings.headless = headless;
+
             const args = [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
@@ -134,10 +139,10 @@ class BrowserClass {
     }
 
     private async getPage(): Promise<Page> {
-        if (!this.page) {
+        if (!this.page || !this.settings.headless) { // always open a new tab in non-headless mode
+            const browser = await this.getBrowser();
+            this.page = await browser.newPage();
         }
-        const browser = await this.getBrowser();
-        this.page = await browser.newPage();
         return this.page;
     }
 
