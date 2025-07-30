@@ -78,6 +78,10 @@ const ScanPage = () => {
             return;
         }
 
+        if (!/^http(s)?:\/\//.test(url)) {
+            url = 'https://' + url;
+        }
+
         try {
             new URL(url);
             setError('');

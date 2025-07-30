@@ -135,9 +135,9 @@ class BrowserClass {
 
     private async getPage(): Promise<Page> {
         if (!this.page) {
-            const browser = await this.getBrowser();
-            this.page = await browser.newPage();
         }
+        const browser = await this.getBrowser();
+        this.page = await browser.newPage();
         return this.page;
     }
 

@@ -40,12 +40,24 @@
         document.documentElement.appendChild(scanButton);
     };
 
+    const bindKeys = () => {
+        document.documentElement.addEventListener('keyup', async (e) => {
+            if (e.altKey && e.key === 't') {
+                await scan();
+                setTimeout(() => {
+                    debugger;
+                });
+            }
+        })
+    };
+
     if (window.dynamicAccessibilityScanner) {
         console.warn('Scanner UI is already set!');
     } else {
         window.dynamicAccessibilityScanner = {
             init: () => {
                 showUi();
+                bindKeys();
             }
         }
     }
