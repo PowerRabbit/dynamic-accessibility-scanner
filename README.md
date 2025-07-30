@@ -2,7 +2,7 @@
 
 ## Get a quick overview of accessibility issues on the page.
 
-<img width="993" height="983" alt="image" src="https://github.com/user-attachments/assets/9b015236-f479-4e28-bdd7-939dfb9d8d6c" />
+<img width="999" height="982" alt="image" src="https://github.com/user-attachments/assets/cfb9c84a-cbcb-4e8f-9080-8fc044d1d36e" />
 
 ## You can also use Live Mode to see the issues directly in the console.
 
