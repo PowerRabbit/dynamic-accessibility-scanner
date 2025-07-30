@@ -13,6 +13,8 @@ import Link from 'next/link';
 type ScanResult = {
     incomplete: AccessibilityIssue[],
     violations: AccessibilityIssue[],
+    actualUrl: string;
+    title: string;
     picture?: string;
 };
 
@@ -34,6 +36,8 @@ const sortByImpactSeverity = (issues: AccessibilityIssue[]): AccessibilityIssue[
 const ScanPage = () => {
     const [inProgress, setInProgress] = useState(false);
     const [error, setError] = useState('');
+    const [title, setTitle] = useState('');
+    const [actualUrl, setActualUrl] = useState('');
     const [picture, setPicture] = useState('');
     const [violations, setViolations] = useState<AccessibilityIssue[]>([]);
     const [incompletes, setIncompletes] = useState<AccessibilityIssue[]>([]);
@@ -64,6 +68,8 @@ const ScanPage = () => {
             sortByImpactSeverity(result.incomplete)
         );
 
+        setTitle(result.title ?? '');
+        setActualUrl(result.actualUrl);
         setPicture(result.picture ?? '');
     }
 
@@ -127,37 +133,46 @@ const ScanPage = () => {
         <br></br>
         <Link href="/settings">Settings</Link>
 
-        {picture ?
-        <img src={`data:image/png;base64,${picture}`} alt="Screenshot of the page" />
-        : ''}
+        {actualUrl ?
+            <div className="results-wrapper">
+                <h2>{title}</h2>
+                <p>
+                    <a href={actualUrl} target="_blank">{actualUrl}</a>
+                </p>
+                {picture ?
+                    <img src={`data:image/png;base64,${picture}`} alt="Screenshot of the page" />
+                    : ''}
 
-        <ScanPageContext.Provider value={{ removeEntry }}>
-        <div className="tabs-wrapper">
-            <Tabs.Root defaultValue="violations">
-                <Tabs.List>
-                    <Tabs.Trigger value="violations">
-                        Violations {violations.length > 0 ? `(${violations.length})` : ''}
-                    </Tabs.Trigger>
-                    <Tabs.Trigger value="incomplete">
-                        Incomplete {incompletes.length > 0 ? `(${incompletes.length})` : ''}
-                    </Tabs.Trigger>
-                </Tabs.List>
-                <Tabs.Content value="violations">
-                    {!violations.length ? 'No violations'
-                        : violations.map((v, i) =>
-                            <ViolationItem key={v.id + i} violation={v} index={i} type='violation' />
-                        )}
-                </Tabs.Content>
-                <Tabs.Content value="incomplete">
-                    {!incompletes.length ? 'No incomplete checks'
-                        : incompletes.map((v, i) =>
-                            <ViolationItem key={v.id + i} violation={v} index={i} type='incomplete' />
-                    )}
-                </Tabs.Content>
-            </Tabs.Root>
-        </div>
-        </ScanPageContext.Provider>
+                    <ScanPageContext.Provider value={{ removeEntry }}>
+                    <div className="tabs-wrapper">
+                        <Tabs.Root defaultValue="violations">
+                            <Tabs.List>
+                                <Tabs.Trigger value="violations">
+                                    Violations {violations.length > 0 ? `(${violations.length})` : ''}
+                                </Tabs.Trigger>
+                                <Tabs.Trigger value="incomplete">
+                                    Incomplete {incompletes.length > 0 ? `(${incompletes.length})` : ''}
+                                </Tabs.Trigger>
+                            </Tabs.List>
+                            <Tabs.Content value="violations">
+                                {!violations.length ? 'No violations'
+                                    : violations.map((v, i) =>
+                                        <ViolationItem key={v.id + i} violation={v} index={i} type='violation' />
+                                    )}
+                            </Tabs.Content>
+                            <Tabs.Content value="incomplete">
+                                {!incompletes.length ? 'No incomplete checks'
+                                    : incompletes.map((v, i) =>
+                                        <ViolationItem key={v.id + i} violation={v} index={i} type='incomplete' />
+                                )}
+                            </Tabs.Content>
+                        </Tabs.Root>
+                    </div>
+                    </ScanPageContext.Provider>
+            </div>
+        : ''}
     </div>;
+
 };
 
 export default ScanPage;

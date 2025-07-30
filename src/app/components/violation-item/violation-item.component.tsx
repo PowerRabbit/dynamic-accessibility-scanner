@@ -28,16 +28,16 @@ export const ViolationItem: FC<ViolationItemProps> = ({ violation: v, index: i, 
 
     return (
         <div className="result" key={v.id + i}>
-            <h2>
+            <h3>
                 <Tooltip content={v.impact} openDelay={0} closeDelay={0}>
                     <Icon color={colorsImpact[v.impact] || ''}><HiExclamation /></Icon>
                 </Tooltip> {v.help}
-            </h2>
+            </h3>
             <div>
                 {v.description} {v.helpUrl ? <a href={v.helpUrl} target="_blank" aria-describedby="newTabInformer">Learn more <Icon><HiMiniArrowTopRightOnSquare /></Icon></a> : ''}
             </div>
             <div>
-                <h3>Affected elements</h3>
+                <h4>Affected elements</h4>
                 <ul>
                     {v.nodes.map((node) =>
                         node.target.map((t, key) =>

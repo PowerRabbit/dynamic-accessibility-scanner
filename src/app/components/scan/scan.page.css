@@ -1,5 +1,17 @@
+.results-wrapper {
+    margin: 2rem 0 0 0;
+}
+
+.results-wrapper h2 {
+    font-weight: 600;
+    max-width: 50%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
 .tabs-wrapper {
-    margin: 5rem 0 0 0;
+    margin: 2rem 0 0 0;
     width: 100%;
 }
 

@@ -7,6 +7,10 @@
 }
 
 .result h3 {
+    font-size: 120%;
+}
+
+.result h4 {
     margin-top: 1rem;
 }
 

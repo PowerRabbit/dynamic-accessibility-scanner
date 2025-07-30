@@ -14,6 +14,8 @@ export type InitOptionsType = {
 export type ScanResults = {
     violations: axe.Result[];
     incomplete: axe.Result[];
+    actualUrl: string;
+    title: string;
     picture?: string;
 }
 
@@ -53,9 +55,14 @@ class BrowserClass {
                 .toBuffer();
             const picture = resizedBuffer.toString('base64');
 
+            const title = await page.title();
+            const actualUrl = page.url();
+
             return {
                 incomplete,
                 violations,
+                title,
+                actualUrl,
                 picture,
             };
 

@@ -16,9 +16,9 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ message: results.message }, { status: 400 });
         }
 
-        const { incomplete, violations, picture } = results;
+        const { incomplete, violations, picture, title, actualUrl } = results;
 
-        return NextResponse.json({ incomplete, violations, picture }, { status: 200 });
+        return NextResponse.json({ incomplete, violations, picture, title, actualUrl }, { status: 200 });
     });
 
 }
