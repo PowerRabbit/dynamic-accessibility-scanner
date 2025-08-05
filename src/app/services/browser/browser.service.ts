@@ -4,20 +4,7 @@ import puppeteer, { Browser, Page, Viewport } from "puppeteer";
 import axe, { AxeResults } from 'axe-core';
 import { ScanError, scanErrorFactory } from "./scan-error.factory";
 import sharp from "sharp";
-
-export type InitOptionsType = {
-    headless: boolean,
-    viewHeight?: number,
-    viewWidth?: number,
-};
-
-export type ScanResults = {
-    violations: axe.Result[];
-    incomplete: axe.Result[];
-    actualUrl: string;
-    title: string;
-    picture?: string;
-}
+import { InitOptionsType, ScanPageOptions, ScanResults } from "@/app/types/scanner.type";
 
 const defaultBrowserOptions: InitOptionsType = {
     headless: true,
@@ -35,10 +22,12 @@ class BrowserClass {
         await this.getBrowser(options);
     }
 
-    async scanPage(url: string): Promise<ScanResults | ScanError> {
+    async scanPage(url: string, options: ScanPageOptions): Promise<ScanResults | ScanError> {
+
+        const { getPicture, getLinks } = options;
+        const results: Partial<ScanResults> = {};
 
         try {
-
             const page = await this.initPageWithUrl(url);
 
             const { incomplete, violations } =  await page.evaluate(async () => {
@@ -49,21 +38,24 @@ class BrowserClass {
                 }).axe.run();
             });
 
-            const screenshotBuffer = await page.screenshot({ type: 'png' });
-            const resizedBuffer = await sharp(screenshotBuffer)
-                .resize({ width: 320 })
-                .toBuffer();
-            const picture = resizedBuffer.toString('base64');
+            if (getPicture) {
+                results.picture = await this.getPicture(page);
+            }
+
+            if (getLinks) {
+                results.links = await this.getLinks(page);
+            }
+
 
             const title = await page.title();
             const actualUrl = page.url();
 
             return {
+                ...results,
                 incomplete,
                 violations,
                 title,
                 actualUrl,
-                picture,
             };
 
         } catch(e) {
@@ -168,6 +160,30 @@ class BrowserClass {
             this.page = await browser.newPage();
         }
         return this.page;
+    }
+
+    private async getPicture(page: Page): Promise<string> {
+        const screenshotBuffer = await page.screenshot({ type: 'png' });
+        const resizedBuffer = await sharp(screenshotBuffer)
+            .resize({ width: 320 })
+            .toBuffer();
+        return resizedBuffer.toString('base64');
+    }
+
+    private async getLinks(page: Page): Promise<string[]> {
+        await page.addScriptTag({
+            url: 'http://localhost:3000/scripts/collect-links.js',
+        });
+
+        const links =  await page.evaluate(async () => {
+            return await (window as unknown as {
+                dynamicAccessibilityScannerLinksCollector: {
+                    collectLinks: () => Promise<string[]>;
+                }
+            }).dynamicAccessibilityScannerLinksCollector.collectLinks();
+        });
+
+        return links;
     }
 
 }

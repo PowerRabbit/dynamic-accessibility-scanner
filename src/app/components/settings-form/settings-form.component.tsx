@@ -35,7 +35,8 @@ export const SettingsForm: FC<{ submit: () => void, inProgress: boolean }> = ({ 
     return (
         <form onSubmit={onSubmit}>
             <h2>View</h2>
-            <Stack gap="2" align="flex-start" maxW="sm">
+            {/* NOT READY */}
+            {/* <Stack gap="2" align="flex-start" maxW="sm">
                 <Select.Root collection={devices} defaultValue={["no"]} onValueChange={(e) => {console.log(e.value[0])}}>
                     <Select.HiddenSelect />
                         <Select.Label>Device</Select.Label>
@@ -81,7 +82,7 @@ export const SettingsForm: FC<{ submit: () => void, inProgress: boolean }> = ({ 
                     <Button type="submit" data-type="scan">Update Settings</Button>
                 </HStack >
                 {inProgress && <p><Spinner/> Updating...</p>}
-            </Stack>
+            </Stack> */}
         </form>
     )
 }
