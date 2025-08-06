@@ -1,7 +1,8 @@
 import { Button, Field, HStack, Input, Spinner, Stack } from '@chakra-ui/react';
 import { useState, type FC } from 'react';
+import { ScanRunType } from '../scan/scan.page';
 
-export const UrlForm: FC<{ submit: (url: string, live: boolean) => void, inProgress: boolean, error: string }> = ({ submit, inProgress, error }) => {
+export const UrlForm: FC<{ submit: (url: string, type: ScanRunType) => void, inProgress: boolean, error: string }> = ({ submit, inProgress, error }) => {
     const [url, setUrl] = useState('');
 
     const onSubmit = (e: React.FormEvent) => {
@@ -11,7 +12,7 @@ export const UrlForm: FC<{ submit: (url: string, live: boolean) => void, inProgr
             return;
         }
 
-        submit(url, (e.nativeEvent as SubmitEvent).submitter?.getAttribute('data-type') === 'live')
+        submit(url, (e.nativeEvent as SubmitEvent).submitter?.getAttribute('data-type') as ScanRunType)
     };
 
     return (
@@ -26,8 +27,9 @@ export const UrlForm: FC<{ submit: (url: string, live: boolean) => void, inProgr
                     <Field.ErrorText>{error}</Field.ErrorText>
                 </Field.Root>
                 <HStack>
-                    <Button type="submit" data-type="scan">Run Scan</Button>
-                    <Button type="submit" data-type="live">Open live scanner</Button>
+                    <Button type="submit" data-type="scan">Scan Single Page</Button>
+                    <Button type="submit" data-type="crawl">Run Crawler</Button>
+                    <Button type="submit" data-type="live">Open Live Scanner</Button>
                 </HStack >
                 {inProgress && <p><Spinner/> Loading...</p>}
             </Stack>

@@ -26,6 +26,8 @@ async function* getNewLinkForScan(forScan: Set<string>, scanned: Set<string>, wa
 
 export class Crawler {
 
+    scanStarted = '';
+    scanFinished = '';
     private browserOptions: InitOptionsType;
     private crawlOptions: CrawlOptionsType;
     private limitUrl: string;
@@ -33,8 +35,6 @@ export class Crawler {
     private readonly beforeScanTimeout = 1000;
     private scannedPages: Set<string> = new Set();
     private pagesToScan: Set<string> = new Set();
-    private scanStarted = '';
-    private scanFinished = '';
 
     constructor(options: {
         browser: InitOptionsType,
@@ -56,10 +56,10 @@ export class Crawler {
         if (!this.mayScan(this.crawlOptions.startUrl.toString())) {
             throw new Error('Initial URL is incorrect!');
         }
+        this.scanStarted = (new Date()).toUTCString();
 
         await browserService.start({headless: true});
 
-        this.scanStarted = (new Date()).toUTCString();
 
         console.log(`Start: ${this.scanStarted}`);
         const dir = 'temp/' + this.crawlOptions.startUrl.host;

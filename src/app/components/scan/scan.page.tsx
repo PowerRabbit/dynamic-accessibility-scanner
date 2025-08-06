@@ -18,6 +18,8 @@ type ScanResult = {
     picture?: string;
 };
 
+export type ScanRunType = 'scan' | 'crawl' | 'live';
+
 const severityOrder: Record<string, number> = {
     critical: 4,
     serious: 3,
@@ -73,6 +75,18 @@ const ScanPage = () => {
         setPicture(result.picture ?? '');
     }
 
+    const requestCrawl = async (url: string) => {
+        const result = await communicationService.post<ScanResult>({
+            url: 'crawl',
+            payload: {
+                url
+            },
+            onErrorFallback: onScanError,
+        });
+
+        console.log(result);
+    }
+
     const openBrowser = async (url: string) => {
         await communicationService.post<ScanResult>({
             url: 'run-view-mode',
@@ -83,7 +97,7 @@ const ScanPage = () => {
         });
     }
 
-    const onUrlSubmit = async (url: string, live = false) => {
+    const onUrlSubmit = async (url: string, type: ScanRunType) => {
 
         if (inProgress) {
             return;
@@ -103,12 +117,20 @@ const ScanPage = () => {
 
         setInProgress(true);
 
-        if (live) {
-            await openBrowser(url);
-        } else {
-            await requestScan(url);
+        switch(type) {
+            case 'scan': {
+                await requestScan(url);
+                break;
+            }
+            case 'crawl': {
+                await requestCrawl(url);
+                break;
+            }
+            case 'live': {
+                await openBrowser(url);
+                break;
+            }
         }
-
 
         setInProgress(false);
     };
@@ -128,7 +150,10 @@ const ScanPage = () => {
     return <div className="page-wrapper">
         <h1>Scan Page</h1>
 
-        <UrlForm submit={onUrlSubmit} inProgress={inProgress} error={error}></UrlForm>
+        <UrlForm
+            submit={onUrlSubmit}
+            inProgress={inProgress}
+            error={error}></UrlForm>
 
         <br></br>
         <Link href="/settings">Settings</Link>
