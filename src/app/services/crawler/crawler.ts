@@ -1,7 +1,7 @@
 import { CrawlOptionsType, InitOptionsType } from "@/app/types/scanner.type";
 import { browserService } from "../browser/browser.service";
 import { ScanError } from "../browser/scan-error.factory";
-import { createFolder, saveToFile } from "../utils/utils";
+import { saveToFile } from "../utils/utils";
 
 // TODO: add unit-tests
 async function* getNewLinkForScan(forScan: Set<string>, scanned: Set<string>, waitMs = 0) {
@@ -29,7 +29,7 @@ export class Crawler {
     private browserOptions: InitOptionsType;
     private crawlOptions: CrawlOptionsType;
     private limitUrl: string;
-    private readonly pagesLimit = 20;
+    private readonly pagesLimit = 10;
     private readonly beforeScanTimeout = 1000;
     private scannedPages: Set<string> = new Set();
     private pagesToScan: Set<string> = new Set();
@@ -65,9 +65,7 @@ export class Crawler {
         const dir = 'temp/' + this.crawlOptions.startUrl.host;
 
         for await (const page of getNewLinkForScan(this.pagesToScan, this.scannedPages, this.beforeScanTimeout)) {
-
             const results = await this.scanPage(page);
-            console.log(`Scanning: ${page}`)
             if (results instanceof ScanError) {
                 console.log('ERROR!');
                 console.log(results);
@@ -80,32 +78,38 @@ export class Crawler {
                 ));
             } else {
                 const { incomplete, violations, title, actualUrl, links } = results;
-                saveToFile(dir, crypto.randomUUID(), JSON.stringify(
-                    {
-                        actualUrl,
-                        title,
-                        timeFinished: (new Date()).toUTCString(),
-                        //incomplete,
-                        violationsLength: violations.length,
-                        violations,
-                        //links
-                    },
-                    null,
-                    2
-                ));
+                this.scannedPages.add(actualUrl);
+
+                if (violations.length) {
+                    saveToFile(dir, crypto.randomUUID() + '.json', JSON.stringify(
+                        {
+                            actualUrl,
+                            title,
+                            timeFinished: (new Date()).toUTCString(),
+                            //incomplete,
+                            violationsLength: violations.length,
+                            violations,
+                            //links
+                        },
+                        null,
+                        2
+                    ));
+                }
 
                 for (const l of links || []) {
                     if (this.pagesToScan.size >= this.pagesLimit) {
                         break;
                     }
-                    const linkUrl = new URL(l);
+                    try {
+                        const linkUrl = new URL(l);
 
-                    // Excluding anchors and hash-navigation
-                    linkUrl.hash = '';
+                        // Excluding anchors and hash-navigation
+                        linkUrl.hash = '';
 
-                    if (this.mayScan(l)) {
-                        this.pagesToScan.add(linkUrl.toString());
-                    }
+                        if (this.mayScan(l)) {
+                            this.pagesToScan.add(linkUrl.toString());
+                        }
+                    } catch(e) {}
                 }
             }
 

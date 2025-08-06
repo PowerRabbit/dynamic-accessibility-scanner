@@ -1,12 +1,13 @@
 import { browserService } from '@/app/services/browser/browser.service';
 import { ScanError } from '@/app/services/browser/scan-error.factory';
 import { Crawler } from '@/app/services/crawler/crawler';
+import { withErrorHandler } from '@/lib/api-handler';
 import { NextRequest, NextResponse } from 'next/server';
 
 const scansOrigins: Set<string> = new Set();
 
-export async function POST(req: NextRequest) {
-    const { url, crawlerMode } = await req.json();
+async function handler(req: NextRequest): Promise<NextResponse> {
+  const { url, crawlerMode } = await req.json();
 
     if (!url) {
         return NextResponse.json({ message: 'Missing URL' }, { status: 400 });
@@ -61,5 +62,6 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ incomplete, violations, picture, title, actualUrl }, { status: 200 });
     });
-
 }
+
+export const POST = withErrorHandler(handler)
