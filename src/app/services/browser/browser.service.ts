@@ -1,7 +1,7 @@
 export const runtime = 'nodejs';
 
 import puppeteer, { Browser, Page, Viewport } from "puppeteer";
-import axe, { AxeResults } from 'axe-core';
+import { AxeResults } from 'axe-core';
 import { ScanError, scanErrorFactory } from "./scan-error.factory";
 import sharp from "sharp";
 import { InitOptionsType, ScanPageOptions, ScanResults } from "@/app/types/scanner.type";
@@ -109,7 +109,22 @@ class BrowserClass {
         const page = await this.getPage();
         await page.setBypassCSP(true);
 
-        await page.goto(url, { waitUntil: 'domcontentloaded' });
+        if (this.settings.headless) {
+            try {
+                await page.goto(url, {
+                    waitUntil: 'networkidle0',
+                    timeout: 20000,
+                });
+            } catch(e) {
+                console.log(`Navigation error: ${e}`);
+            }
+        } else {
+            await page.goto(url, {
+                waitUntil: 'domcontentloaded'
+            });
+        }
+
+
 
         await page.addScriptTag({
             url: 'http://localhost:3000/api/axe-static',
@@ -158,6 +173,17 @@ class BrowserClass {
         if (!this.page || !this.settings.headless) { // always open a new tab in non-headless mode
             const browser = await this.getBrowser();
             this.page = await browser.newPage();
+
+            await this.page.setRequestInterception(true);
+
+            this.page.on('request', (request) => {
+                const resourceType = request.resourceType();
+                if (['image', 'media', 'font'].includes(resourceType)) {
+                    request.abort();
+                } else {
+                    request.continue();
+                }
+            });
         }
         return this.page;
     }
