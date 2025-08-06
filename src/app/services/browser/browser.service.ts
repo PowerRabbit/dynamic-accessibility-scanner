@@ -124,8 +124,6 @@ class BrowserClass {
             });
         }
 
-
-
         await page.addScriptTag({
             url: 'http://localhost:3000/api/axe-static',
         });
@@ -174,16 +172,19 @@ class BrowserClass {
             const browser = await this.getBrowser();
             this.page = await browser.newPage();
 
-            await this.page.setRequestInterception(true);
+            if (this.settings.headless) {
+                await this.page.setRequestInterception(true);
 
-            this.page.on('request', (request) => {
-                const resourceType = request.resourceType();
-                if (['image', 'media', 'font'].includes(resourceType)) {
-                    request.abort();
-                } else {
-                    request.continue();
-                }
-            });
+                this.page.on('request', (request) => {
+                    const resourceType = request.resourceType();
+                    if (['image', 'media', 'font'].includes(resourceType)) {
+                        request.abort();
+                    } else {
+                        request.continue();
+                    }
+                });
+            }
+
         }
         return this.page;
     }
