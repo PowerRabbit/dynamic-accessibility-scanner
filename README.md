@@ -18,6 +18,9 @@ npm i
 ### Build & Run
 
 ```bash
+npx knex migrate:latest
+```
+```bash
 npm run build
 ```
 ```bash

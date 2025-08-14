@@ -1,7 +1,8 @@
 import { CrawlOptionsType, InitOptionsType } from "@/app/types/scanner.type";
 import { browserService } from "../browser/browser.service";
 import { ScanError } from "../browser/scan-error.factory";
-import { saveToFile } from "../utils/utils";
+import axe from "axe-core";
+import db from "../utils/knex";
 
 // TODO: add unit-tests
 async function* getNewLinkForScan(forScan: Set<string>, scanned: Set<string>, waitMs = 0) {
@@ -31,7 +32,7 @@ export class Crawler {
     private browserOptions: InitOptionsType;
     private crawlOptions: CrawlOptionsType;
     private limitUrl: string;
-    private readonly pagesLimit = 10;
+    private readonly pagesLimit = 5;
     private readonly beforeScanTimeout = 1000;
     private scannedPages: Set<string> = new Set();
     private pagesToScan: Set<string> = new Set();
@@ -53,76 +54,48 @@ export class Crawler {
     }
 
     async run(): Promise<void> {
-        if (!this.mayScan(this.crawlOptions.startUrl.toString())) {
+        const startUrl = this.crawlOptions.startUrl.toString();
+        if (!this.mayScan(startUrl)) {
             throw new Error('Initial URL is incorrect!');
         }
         this.scanStarted = (new Date()).toUTCString();
 
         await browserService.start({headless: true});
 
-
-        console.log(`Start: ${this.scanStarted}`);
-        const dir = 'temp/' + this.crawlOptions.startUrl.host;
+        const crawlId = await this.saveCrawl({ url: startUrl, startedAt: this.scanStarted});
 
         for await (const page of getNewLinkForScan(this.pagesToScan, this.scannedPages, this.beforeScanTimeout)) {
             const results = await this.scanPage(page);
             if (results instanceof ScanError) {
-                console.log('ERROR!');
-                console.log(results);
-                saveToFile(dir, crypto.randomUUID(), JSON.stringify(
-                    {
-                        results
-                    },
-                    null,
-                    2
-                ));
+                await this.savePage({
+                    crawlId,
+                    url: page,
+                    scanError: '',
+                });
             } else {
                 const { incomplete, violations, title, actualUrl, links } = results;
                 this.scannedPages.add(actualUrl);
 
-                if (violations.length) {
-                    saveToFile(dir, crypto.randomUUID() + '.json', JSON.stringify(
-                        {
-                            actualUrl,
-                            title,
-                            timeFinished: (new Date()).toUTCString(),
-                            //incomplete,
-                            violationsLength: violations.length,
-                            violations,
-                            //links
-                        },
-                        null,
-                        2
-                    ));
-                }
+                await this.savePage({
+                    crawlId,
+                    url: page,
+                    incomplete,
+                    violations,
+                    title,
+                });
 
-                for (const l of links || []) {
-                    if (this.pagesToScan.size >= this.pagesLimit) {
-                        break;
-                    }
-                    try {
-                        const linkUrl = new URL(l);
-
-                        // Excluding anchors and hash-navigation
-                        linkUrl.hash = '';
-
-                        if (this.mayScan(l)) {
-                            this.pagesToScan.add(linkUrl.toString());
-                        }
-                    } catch(e) {}
-                }
+                this.updateLinksToScan(links || []);
             }
-
         }
 
         this.scanFinished = (new Date()).toUTCString();
-        console.log(`Finish: ${this.scanFinished}`);
-        console.log(JSON.stringify(Array.from(this.pagesToScan), null, 4))
+        await db('crawls')
+            .where({ id: crawlId })
+            .update({ ended_at: this.scanFinished });
         browserService.stop();
     }
 
     private async scanPage(url: string) {
-
         const results = await browserService.scanPage(url, {
             getLinks: true,
         });
@@ -134,5 +107,54 @@ export class Crawler {
         return (new URL(url).toString()).startsWith(this.limitUrl);
     }
 
+    private updateLinksToScan(links: string[]): void {
+        for (const l of links) {
+            if (this.pagesToScan.size >= this.pagesLimit) {
+                break;
+            }
+            try {
+                const linkUrl = new URL(l);
+
+                // Excluding anchors and hash-navigation
+                linkUrl.hash = '';
+
+                if (this.mayScan(l)) {
+                    this.pagesToScan.add(linkUrl.toString());
+                }
+            } catch(e) {}
+        }
+    }
+
+    private async saveCrawl(params: {url: string, startedAt: string}): Promise<number> {
+        const { url, startedAt } = params;
+        const [crawlId] = await db('crawls').insert({
+            uuid: crypto.randomUUID(),
+            base_url: url,
+            started_at: startedAt,
+        });
+
+        return crawlId;
+    }
+
+    private async savePage(params: {
+        url: string,
+        crawlId: number;
+        title?: string,
+        violations?: axe.Result[];
+        incomplete?: axe.Result[];
+        scanError?: string;
+    }): Promise<unknown> {
+        const { url, crawlId, violations, incomplete, scanError, title } = params;
+        return await db('pages').insert({
+            id: crypto.randomUUID(),
+            crawl_id: crawlId,
+            url,
+            title: title || '',
+            violations: JSON.stringify(violations || []),
+            incomplete: JSON.stringify(incomplete || []),
+            scan_error: scanError || '',
+            scanned_at: (new Date()).toUTCString(),
+        });
+    }
 
 }
