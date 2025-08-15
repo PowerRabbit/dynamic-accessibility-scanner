@@ -143,17 +143,24 @@ export class Crawler {
         violations?: axe.Result[];
         incomplete?: axe.Result[];
         scanError?: string;
-    }): Promise<unknown> {
+    }): Promise<void> {
         const { url, crawlId, violations, incomplete, scanError, title } = params;
-        return await db('pages').insert({
+
+        const pageId = await db('pages').insert({
             id: crypto.randomUUID(),
             crawl_id: crawlId,
             url,
             title: title || '',
-            violations: JSON.stringify(violations || []),
-            incomplete: JSON.stringify(incomplete || []),
+            violations_amount: violations?.length ?? 0,
+            incomplete_amount: incomplete?.length ?? 0,
             scan_error: scanError || '',
             scanned_at: (new Date()).toUTCString(),
+        });
+
+        await db('page_data').insert({
+            page_id: pageId,
+            violations: JSON.stringify(violations || []),
+            incomplete: JSON.stringify(incomplete || []),
         });
     }
 

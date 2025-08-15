@@ -77,7 +77,7 @@ const ScanPage = () => {
 
     const requestCrawl = async (url: string) => {
         const result = await communicationService.post<ScanResult>({
-            url: 'crawl',
+            url: 'crawls',
             payload: {
                 url
             },
@@ -156,7 +156,7 @@ const ScanPage = () => {
             error={error}></UrlForm>
 
         <br></br>
-        <Link href="/settings">Settings</Link>
+        <Link href="/crawls">Crawls</Link> | <Link href="/settings">Settings</Link>
 
         {actualUrl ?
             <div className="results-wrapper">
