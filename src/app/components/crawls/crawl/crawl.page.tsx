@@ -34,7 +34,7 @@ const CrawlPage = ({ uuid }: Props) => {
     return (
     <div className="page-wrapper">
       <h1>Crawl results</h1>
-      <Link href="/">Scan Page</Link> | <Link href="/crawls">Back to all Crawls</Link>
+      <Link href="/">Home</Link> | <Link href="/crawls">Back to all Crawls</Link>
       <br/><br/>
         <div>
             <Table.Root size="sm">

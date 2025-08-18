@@ -29,6 +29,7 @@ export class Crawler {
 
     scanStarted = '';
     scanFinished = '';
+    uuid = crypto.randomUUID();
     private browserOptions: InitOptionsType;
     private crawlOptions: CrawlOptionsType;
     private limitUrl: string;
@@ -53,7 +54,7 @@ export class Crawler {
         this.pagesToScan.add(startUrlString);
     }
 
-    async run(): Promise<void> {
+    async init(cb?: () => void): Promise<void> {
         const startUrl = this.crawlOptions.startUrl.toString();
         if (!this.mayScan(startUrl)) {
             throw new Error('Initial URL is incorrect!');
@@ -62,8 +63,16 @@ export class Crawler {
 
         await browserService.start({headless: true});
 
-        const crawlId = await this.saveCrawl({ url: startUrl, startedAt: this.scanStarted});
+        const crawlId = await this.saveCrawl({ url: startUrl, startedAt: this.scanStarted, uuid: this.uuid});
 
+        this.run(crawlId).finally(() => {
+            if (typeof cb === 'function') {
+                cb();
+            }
+        })
+    }
+
+    async run(crawlId: number): Promise<void> {
         for await (const page of getNewLinkForScan(this.pagesToScan, this.scannedPages, this.beforeScanTimeout)) {
             const results = await this.scanPage(page);
             if (results instanceof ScanError) {
@@ -125,10 +134,10 @@ export class Crawler {
         }
     }
 
-    private async saveCrawl(params: {url: string, startedAt: string}): Promise<number> {
-        const { url, startedAt } = params;
+    private async saveCrawl(params: {url: string, uuid: string, startedAt: string}): Promise<number> {
+        const { url, startedAt, uuid } = params;
         const [crawlId] = await db('crawls').insert({
-            uuid: crypto.randomUUID(),
+            uuid,
             base_url: url,
             started_at: startedAt,
         });

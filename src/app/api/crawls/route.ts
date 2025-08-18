@@ -41,8 +41,8 @@ async function postHandler(req: NextRequest): Promise<NextResponse> {
         }
     });
 
-    crawler.run().finally(() => {
-        scansOrigins.delete(scanUrl.origin);
+    await crawler.init(() => {
+        scansOrigins.delete(scanUrl.origin); // Runs very at the end! Not within await!
     });
 
     scansOrigins.set(scanUrl.origin, {
@@ -50,7 +50,7 @@ async function postHandler(req: NextRequest): Promise<NextResponse> {
         startedAt: crawler.scanStarted,
     });
 
-    return NextResponse.json({}, { status: 200 });
+    return NextResponse.json({ uuid: crawler.uuid }, { status: 200 });
 }
 
 async function getHandler(req: NextRequest): Promise<NextResponse> {

@@ -35,7 +35,7 @@ const CrawlsPage = () => {
 
     return <div className="page-wrapper">
         <h1>Crawls</h1>
-        <Link href="/">Scan Page</Link>
+        <Link href="/">Home</Link>
         <br/><br/>
         <div>
             <Table.Root size="sm">

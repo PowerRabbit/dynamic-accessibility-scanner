@@ -9,6 +9,7 @@ import { communicationService } from "@/app/fe-services/communication/communicat
 import { ViolationItem } from "../violation-item/violation-item.component";
 import { UrlForm } from "../url-form/url-form.component";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type ScanResult = {
     incomplete: AccessibilityIssue[],
@@ -43,6 +44,7 @@ const ScanPage = () => {
     const [picture, setPicture] = useState('');
     const [violations, setViolations] = useState<AccessibilityIssue[]>([]);
     const [incompletes, setIncompletes] = useState<AccessibilityIssue[]>([]);
+    const router = useRouter();
 
     const onScanError = <T,>(e: unknown): T => {
         setError((e as Error).message);
@@ -76,7 +78,7 @@ const ScanPage = () => {
     }
 
     const requestCrawl = async (url: string) => {
-        const result = await communicationService.post<ScanResult>({
+        const { uuid } = await communicationService.post<{ uuid: string}>({
             url: 'crawls',
             payload: {
                 url
@@ -84,7 +86,7 @@ const ScanPage = () => {
             onErrorFallback: onScanError,
         });
 
-        console.log(result);
+        router.push(`/crawls/${uuid}`);
     }
 
     const openBrowser = async (url: string) => {

@@ -26,7 +26,7 @@ export type PageResultsType = {
     scannedAt: string;
     title: string;
     url: string;
-    violations: AccessibilityIssue;
-    incomplete: AccessibilityIssue;
+    violations: AccessibilityIssue[];
+    incomplete: AccessibilityIssue[];
     error: string;
 };

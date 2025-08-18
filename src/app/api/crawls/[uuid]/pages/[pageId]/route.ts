@@ -34,15 +34,16 @@ async function getHandler(
         })
         .first();
 
+    if (!resultFromDb) {
+        return NextResponse.json({ message: 'Not found'}, { status: 404 });
+    }
+
     const result: PageResultsType = {
         ...resultFromDb,
         violations: JSON.parse(resultFromDb.violations),
         incomplete: JSON.parse(resultFromDb.incomplete),
     }
 
-    if (!resultFromDb) {
-        return NextResponse.json({ message: 'Not found'}, { status: 404 });
-    }
     return NextResponse.json(result, { status: 200 });
 }
 
