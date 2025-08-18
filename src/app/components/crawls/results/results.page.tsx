@@ -2,7 +2,7 @@
 
 import { communicationService } from "@/app/fe-services/communication/communication.service";
 import { PageResultsType } from "@/types/page.type";
-import { Icon, Tabs } from "@chakra-ui/react";
+import { Button, Icon, Tabs } from "@chakra-ui/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { HiOutlineExternalLink } from "react-icons/hi";
@@ -20,6 +20,15 @@ const ResultsPage = ({ crawlUuid, pageUuid }: Props) => {
     const hasFetched = useRef(false);
 
     const removeEntry = () => {};
+
+    const openLive = async (url: string) => {
+        await communicationService.post({
+            url: 'run-view-mode',
+            payload: {
+                url
+            }
+        });
+    }
 
     useEffect(() => {
         if (hasFetched.current) {
@@ -45,10 +54,11 @@ const ResultsPage = ({ crawlUuid, pageUuid }: Props) => {
                     <p>{pageData.error}</p>
                 </>
             } else {
-                const { violations, incomplete } = pageData;
+                const { violations, incomplete, url, title } = pageData;
                 return <>
-                    <p><b>Title:</b> {pageData.title}</p>
-                    <p><b>URL:</b> <a href={pageData.url} target="_blank"><Icon><HiOutlineExternalLink /></Icon> {pageData.url}</a></p>
+                    <p><b>Title:</b> {title}</p>
+                    <p><b>URL:</b> <a href={url} target="_blank"><Icon><HiOutlineExternalLink /></Icon> {pageData.url}</a></p>
+                    <Button onClick={() => openLive(url)} type="button" colorPalette="teal">Open Live Scanner</Button>
                     <br/><br/>
                     <ScanPageContext.Provider value={{ removeEntry }}>
                     <div className="tabs-wrapper">
