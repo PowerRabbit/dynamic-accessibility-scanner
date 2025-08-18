@@ -1,17 +1,7 @@
 import { NextResponse } from 'next/server';
 import { withErrorHandler } from '@/lib/api-handler';
 import db from '@/app/services/utils/knex';
-
-type PageType = {
-    crawl_id: number;
-    id: string;
-    scan_error: string;
-    scanned_at: string;
-    title: string;
-    url: string;
-    violations_amount: number;
-    incomplete_amount: number;
-};
+import { PageType } from '@/types/page.type';
 
 async function getHandler(
     request: Request,

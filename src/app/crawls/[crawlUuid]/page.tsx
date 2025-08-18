@@ -7,15 +7,15 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  params: { uuid: string };
+  params: { crawlUuid: string };
 }
 
 const CrawlPageP = async ({ params }: Props) => {
-  const { uuid } = await Promise.resolve(params);
+  const { crawlUuid } = await Promise.resolve(params);
 
   return (
     <Provider>
-      <CrawlPage uuid={uuid} />
+      <CrawlPage uuid={crawlUuid} />
     </Provider>
   );
 };

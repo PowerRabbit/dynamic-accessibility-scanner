@@ -41,10 +41,10 @@ const CrawlsPage = () => {
             <Table.Root size="sm">
                 <Table.Header>
                     <Table.Row>
-                    <Table.ColumnHeader>URL</Table.ColumnHeader>
-                    <Table.ColumnHeader>Started</Table.ColumnHeader>
-                    <Table.ColumnHeader>Finished</Table.ColumnHeader>
-                    <Table.ColumnHeader></Table.ColumnHeader>
+                        <Table.ColumnHeader>URL</Table.ColumnHeader>
+                        <Table.ColumnHeader>Started</Table.ColumnHeader>
+                        <Table.ColumnHeader>Finished</Table.ColumnHeader>
+                        <Table.ColumnHeader></Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>

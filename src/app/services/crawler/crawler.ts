@@ -146,7 +146,7 @@ export class Crawler {
     }): Promise<void> {
         const { url, crawlId, violations, incomplete, scanError, title } = params;
 
-        const pageId = await db('pages').insert({
+        const [{ id }] = await db('pages').insert({
             id: crypto.randomUUID(),
             crawl_id: crawlId,
             url,
@@ -155,10 +155,10 @@ export class Crawler {
             incomplete_amount: incomplete?.length ?? 0,
             scan_error: scanError || '',
             scanned_at: (new Date()).toUTCString(),
-        });
+        }).returning('id');
 
         await db('page_data').insert({
-            page_id: pageId,
+            page_id: id,
             violations: JSON.stringify(violations || []),
             incomplete: JSON.stringify(incomplete || []),
         });

@@ -7,7 +7,7 @@ import { HiMiniArrowTopRightOnSquare } from "react-icons/hi2";
 import { Tooltip } from '../ui/tooltip';
 
 import './violation-item.component.css';
-import { AccessibilityIssue } from '../scan/scan.types';
+import { AccessibilityIssue } from '../../../types/scan.types';
 import { ScanPageContextExporter } from '../scan/scan.context';
 
 type ViolationItemProps = {

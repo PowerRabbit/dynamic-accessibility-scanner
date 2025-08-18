@@ -3,7 +3,7 @@
 import { useState } from "react";
 import './scan.page.css';
 import { Tabs } from "@chakra-ui/react";
-import type { AccessibilityIssue } from "./scan.types";
+import type { AccessibilityIssue } from "../../../types/scan.types";
 import ScanPageContext from "./scan.context";
 import { communicationService } from "@/app/fe-services/communication/communication.service";
 import { ViolationItem } from "../violation-item/violation-item.component";
