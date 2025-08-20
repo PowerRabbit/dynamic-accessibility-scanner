@@ -59,9 +59,14 @@ export const ViolationItem: FC<ViolationItemProps> = ({ violation: v, index: i, 
                     : ''
                 }
             </div>
+            {
+                removeEntry ?
             <div className="actions">
-                <Button type="button" onClick={() => removeEntry(i, t)}>Remove</Button>
+                <Button type="button" onClick={() => removeEntry && removeEntry(i, t)}>Remove</Button>
             </div>
+                : ''
+            }
+
         </div>
     );
 };

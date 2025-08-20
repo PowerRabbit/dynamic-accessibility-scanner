@@ -107,6 +107,7 @@ class BrowserClass {
 
     private async initPageWithUrl(url: string): Promise<Page> {
         const page = await this.getPage();
+        await this.hideBotNature(page);
         await page.setBypassCSP(true);
 
         if (this.settings.headless) {
@@ -211,6 +212,12 @@ class BrowserClass {
         });
 
         return links;
+    }
+
+    private async hideBotNature(page: Page) {
+        await page.evaluateOnNewDocument(() => {
+            delete Object.getPrototypeOf(navigator).webdriver;
+        });
     }
 
 }

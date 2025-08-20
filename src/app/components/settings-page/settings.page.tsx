@@ -7,11 +7,10 @@ const SettingsPage = () => {
 
     return <div className="page-wrapper">
         <h1>Settings</h1>
-        <p>(Applies for Headless scan)</p>
+        <Link href="/">Home</Link>
+        <p>(Applies for Headless scans)</p>
         <br />
         <SettingsForm  submit={() => {}} inProgress={false}></SettingsForm>
-        <br />
-        <Link href="/">Go Back</Link>
     </div>
 }
 

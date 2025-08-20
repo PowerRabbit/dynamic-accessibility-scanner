@@ -19,8 +19,6 @@ const ResultsPage = ({ crawlUuid, pageUuid }: Props) => {
     const [pageData, setPageData] = useState<PageResultsType>();
     const hasFetched = useRef(false);
 
-    const removeEntry = () => {};
-
     const openLive = async (url: string) => {
         await communicationService.post({
             url: 'run-view-mode',
@@ -60,7 +58,7 @@ const ResultsPage = ({ crawlUuid, pageUuid }: Props) => {
                     <p><b>URL:</b> <a href={url} target="_blank"><Icon><HiOutlineExternalLink /></Icon> {pageData.url}</a></p>
                     <Button onClick={() => openLive(url)} type="button" colorPalette="teal">Open Live Scanner</Button>
                     <br/><br/>
-                    <ScanPageContext.Provider value={{ removeEntry }}>
+                    <ScanPageContext.Provider value={{}}>
                     <div className="tabs-wrapper">
                         <Tabs.Root defaultValue="violations">
                             <Tabs.List>

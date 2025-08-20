@@ -2,7 +2,7 @@
 
 import { communicationService } from "@/app/fe-services/communication/communication.service";
 import { PageDataResponseType } from "@/types/page.type";
-import { Icon, Table } from "@chakra-ui/react";
+import { Icon, Spinner, Table } from "@chakra-ui/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { HiOutlineExternalLink } from "react-icons/hi";
@@ -11,25 +11,54 @@ interface Props {
   uuid: string;
 }
 
+type CrawlResponseType = {
+    startedAt: string;
+    endedAt: string;
+    pages: PageDataResponseType[];
+}
+
 const CrawlPage = ({ uuid }: Props) => {
     const [pagesData, setPagesData] = useState<PageDataResponseType[]>();
-        const hasFetched = useRef(false);
+    const [inProgress, setInProgress] = useState(false);
+    const hasFetched = useRef(false);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-        useEffect(() => {
-            if (hasFetched.current) {
-                return
-            };
+    useEffect(() => {
+        if (hasFetched.current) {
+            return
+        };
 
-            const fetchCrawlsData = async () => {
-                const result = await communicationService.get<PageDataResponseType[]>({
-                    url: `crawls/${uuid}`,
-                });
-                setPagesData(result);
-            };
-
-            fetchCrawlsData();
+        const fetchCrawlsData = async () => {
+            const result = await communicationService.get<CrawlResponseType>({
+                url: `crawls/${uuid}`,
+            });
+            setPagesData(result.pages);
             hasFetched.current = true;
-        }, [uuid]);
+
+            if (result.endedAt) {
+                setInProgress(false);
+                if (intervalRef.current) {
+                    clearInterval(intervalRef.current);
+                    intervalRef.current = null;
+                }
+            } else {
+                setInProgress(true);
+            }
+        };
+
+        fetchCrawlsData();
+
+        intervalRef.current = setInterval(() => {
+            fetchCrawlsData();
+        }, 10000);
+
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+
+    }, [uuid]);
 
     return (
     <div className="page-wrapper">
@@ -66,6 +95,8 @@ const CrawlPage = ({ uuid }: Props) => {
                 </Table.Body>
             </Table.Root>
         </div>
+        {!hasFetched.current ? <p><Spinner /> Loading...</p> : ''}
+        {inProgress ? <p><Spinner /> Crawl in progress...</p> : ''}
     </div>
     );
 };
