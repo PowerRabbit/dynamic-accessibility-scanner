@@ -1,10 +1,9 @@
 import { browserService } from '@/app/services/browser/browser.service';
 import { ScanError } from '@/app/services/browser/scan-error.factory';
 import { ScannerSettingsType } from '@/app/types/settings.type';
-import { withErrorHandler } from '@/lib/api-handler';
 import { NextRequest, NextResponse } from 'next/server';
 
-async function handler(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse> {
     const { url, settings } = (await req.json()) as { url: string, settings: ScannerSettingsType};
 
     if (!url) {
@@ -28,5 +27,3 @@ async function handler(req: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ incomplete, violations, picture, title, actualUrl }, { status: 200 });
     });
 }
-
-export const POST = withErrorHandler(handler)

@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
-import { withErrorHandler } from '@/lib/api-handler';
 import db from '@/app/services/utils/knex';
 import { PageResultsType } from '@/types/page.type';
 
-async function getHandler(
+export async function GET(
     request: Request,
-    { params }: { params: { uuid: string, pageId: string } }
+    { params }: { params: Promise<{ uuid: string, pageId: string }>}
 ) {
-    const { uuid, pageId } = await Promise.resolve(params);
+    const { uuid, pageId } = await params;
 
     if (!uuid ||!pageId) {
         return NextResponse.json({ message: 'Data not found'}, { status: 404 });
@@ -43,4 +42,3 @@ async function getHandler(
     return NextResponse.json(result, { status: 200 });
 }
 
-export const GET = withErrorHandler<{ uuid: string, pageId: string }>(getHandler);

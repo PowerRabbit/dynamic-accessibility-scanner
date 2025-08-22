@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  params: {
+  params: Promise<{
     crawlUuid: string;
     pageUuid: string;
- };
+ }>;
 }
 
 const CrawlResultsPageP = async ({ params }: Props) => {

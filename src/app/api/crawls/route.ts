@@ -1,7 +1,6 @@
 import { Crawler } from '@/app/services/crawler/crawler';
 import db from '@/app/services/utils/knex';
 import { ScannerSettingsType } from '@/app/types/settings.type';
-import { withErrorHandler } from '@/lib/api-handler';
 import { NextRequest, NextResponse } from 'next/server';
 
 type CrawlDataType = {
@@ -11,7 +10,7 @@ type CrawlDataType = {
 
 const scansOrigins: Map<string, CrawlDataType> = new Map();
 
-async function postHandler(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const { url, settings } = (await req.json()) as { url: string, settings: ScannerSettingsType};
 
     if (!url) {
@@ -58,10 +57,8 @@ async function postHandler(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ uuid: crawler.uuid }, { status: 200 });
 }
 
-async function getHandler(req: NextRequest): Promise<NextResponse> {
+export async function GET(req: NextRequest): Promise<NextResponse> {
     const crawls = await db('crawls');
     return NextResponse.json(crawls, { status: 200 });
 }
 
-export const POST = withErrorHandler(postHandler);
-export const GET = withErrorHandler(getHandler);

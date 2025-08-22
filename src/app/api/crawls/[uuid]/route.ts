@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { withErrorHandler } from '@/lib/api-handler';
 import db from '@/app/services/utils/knex';
 import { PageType } from '@/types/page.type';
 
@@ -10,11 +9,11 @@ type CrawlType = {
     ended_at: string;
 }
 
-async function getHandler(
+export async function GET(
     _request: Request,
-    { params }: { params: { uuid: string } }
+    { params }: { params: Promise<{ uuid: string }>}
 ) {
-    const { uuid } = await Promise.resolve(params);
+    const { uuid } = await params;
     const crawl: CrawlType = await db('crawls')
         .where({ uuid })
         .first();
@@ -42,17 +41,14 @@ async function getHandler(
     }, { status: 200 });
 }
 
-async function deleteHandler(
+export async function DELETE(
     _request: Request,
-    { params }: { params: { uuid: string } }
+    { params }: { params: Promise<{ uuid: string }>}
 ) {
-    const { uuid } = await Promise.resolve(params);
+    const { uuid } = await params;
     await db('crawls')
         .where({ uuid })
         .del();
 
     return NextResponse.json({}, { status: 200 });
 }
-
-export const DELETE = withErrorHandler<{ uuid: string }>(deleteHandler);
-export const GET = withErrorHandler<{ uuid: string }>(getHandler);

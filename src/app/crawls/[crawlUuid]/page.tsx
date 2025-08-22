@@ -7,11 +7,11 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  params: { crawlUuid: string };
+  params: Promise<{ crawlUuid: string }>;
 }
 
 const CrawlPageP = async ({ params }: Props) => {
-  const { crawlUuid } = await Promise.resolve(params);
+  const { crawlUuid } = await params;
 
   return (
     <Provider>
