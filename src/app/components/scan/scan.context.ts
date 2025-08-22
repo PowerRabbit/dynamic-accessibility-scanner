@@ -5,11 +5,11 @@ import { createContext, useContext } from 'react';
 type RemoveChildFunction = (id: number, type: string) => void;
 
 type ContextType = {
-  removeEntry: RemoveChildFunction;
+  removeEntry?: RemoveChildFunction;
 };
 
 const ScanPageContext = createContext<ContextType>({
-    removeEntry: () => {},
+
 });
 
 export const ScanPageContextExporter = () => useContext(ScanPageContext);

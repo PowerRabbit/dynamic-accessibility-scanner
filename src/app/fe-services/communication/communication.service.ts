@@ -86,6 +86,16 @@ class CommunicationServiceClass {
         return this.send<T>({request, onErrorFallback});
     }
 
+    async delete<T = unknown>(options: {url: string, onErrorFallback?: OnErrorFallbackType}): Promise<T> {
+        const { url, onErrorFallback } = options;
+        const request = new DasRequest({
+            method: 'DELETE',
+            url,
+        }).makeRequest();
+
+        return this.send<T>({request, onErrorFallback});
+    }
+
 }
 
 export const communicationService = new CommunicationServiceClass();

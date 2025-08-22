@@ -2,13 +2,18 @@
 
 import { useState } from "react";
 import './scan.page.css';
-import { Tabs } from "@chakra-ui/react";
-import type { AccessibilityIssue } from "./scan.types";
+import { Button, Tabs } from "@chakra-ui/react";
+import type { AccessibilityIssue } from "../../../types/scan.types";
 import ScanPageContext from "./scan.context";
 import { communicationService } from "@/app/fe-services/communication/communication.service";
 import { ViolationItem } from "../violation-item/violation-item.component";
 import { UrlForm } from "../url-form/url-form.component";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { DasDialog } from "../dialog/dialog.component";
+import { defaultSettings, SettingsForm } from "../settings-form/settings-form.component";
+import { storageService } from "@/app/fe-services/storage/storage.service";
+import { ScannerSettingsType } from "@/app/types/settings.type";
 
 type ScanResult = {
     incomplete: AccessibilityIssue[],
@@ -17,6 +22,8 @@ type ScanResult = {
     title: string;
     picture?: string;
 };
+
+export type ScanRunType = 'scan' | 'crawl' | 'live';
 
 const severityOrder: Record<string, number> = {
     critical: 4,
@@ -41,6 +48,7 @@ const ScanPage = () => {
     const [picture, setPicture] = useState('');
     const [violations, setViolations] = useState<AccessibilityIssue[]>([]);
     const [incompletes, setIncompletes] = useState<AccessibilityIssue[]>([]);
+    const router = useRouter();
 
     const onScanError = <T,>(e: unknown): T => {
         setError((e as Error).message);
@@ -53,10 +61,12 @@ const ScanPage = () => {
     };
 
     const requestScan = async (url: string) => {
+        const settings = storageService.load<ScannerSettingsType>('scannerSettings') || defaultSettings;
         const result = await communicationService.post<ScanResult>({
             url: 'scan-page',
             payload: {
-                url
+                url,
+                settings
             },
             onErrorFallback: onScanError,
         });
@@ -73,6 +83,20 @@ const ScanPage = () => {
         setPicture(result.picture ?? '');
     }
 
+    const requestCrawl = async (url: string) => {
+        const settings = storageService.load<ScannerSettingsType>('scannerSettings') || defaultSettings;
+        const { uuid } = await communicationService.post<{ uuid: string}>({
+            url: 'crawls',
+            payload: {
+                url,
+                settings
+            },
+            onErrorFallback: onScanError,
+        });
+
+        router.push(`/crawls/${uuid}`);
+    }
+
     const openBrowser = async (url: string) => {
         await communicationService.post<ScanResult>({
             url: 'run-view-mode',
@@ -83,7 +107,7 @@ const ScanPage = () => {
         });
     }
 
-    const onUrlSubmit = async (url: string, live = false) => {
+    const onUrlSubmit = async (url: string, type: ScanRunType) => {
 
         if (inProgress) {
             return;
@@ -103,12 +127,20 @@ const ScanPage = () => {
 
         setInProgress(true);
 
-        if (live) {
-            await openBrowser(url);
-        } else {
-            await requestScan(url);
+        switch(type) {
+            case 'scan': {
+                await requestScan(url);
+                break;
+            }
+            case 'crawl': {
+                await requestCrawl(url);
+                break;
+            }
+            case 'live': {
+                await openBrowser(url);
+                break;
+            }
         }
-
 
         setInProgress(false);
     };
@@ -125,13 +157,34 @@ const ScanPage = () => {
         }
     };
 
+    const renderSettings = () => {
+
+        return <DasDialog
+            title="Scan settings"
+            type='dialog'
+            content={
+                <SettingsForm></SettingsForm>
+            }
+            showAction={false}
+            showCancel={false}
+            triggerButton={
+                <Button type="button">
+                    Settings
+                </Button>
+            }
+        />
+    }
+
     return <div className="page-wrapper">
         <h1>Scan Page</h1>
 
-        <UrlForm submit={onUrlSubmit} inProgress={inProgress} error={error}></UrlForm>
+        <UrlForm
+            submit={onUrlSubmit}
+            inProgress={inProgress}
+            error={error}></UrlForm>
 
         <br></br>
-        <Link href="/settings">Settings</Link>
+        <Link href="/crawls">Crawls</Link> | {renderSettings()}
 
         {actualUrl ?
             <div className="results-wrapper">

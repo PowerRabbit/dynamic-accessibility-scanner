@@ -1,19 +1,19 @@
 type InMemoryStorageType = {
-    setItem: (key: string, value: unknown) => void;
-    getItem: <T = unknown>(key: string) => T | undefined;
+    setItem: (key: string, value: string) => void;
+    getItem: (key: string) => string | undefined;
     removeItem: (key: string) => void;
 }
 
 class InMemoryStorageClass implements InMemoryStorageType {
 
-    private storage: Map<string, unknown> = new Map();
+    private storage: Map<string, string> = new Map();
 
-    setItem(key: string, value: unknown): void {
+    setItem(key: string, value: string): void {
         this.storage.set(key, value);
     }
 
-    getItem<T = unknown>(key: string) : T | undefined {
-        return this.storage.get(key) as T;
+    getItem(key: string): string | undefined {
+        return this.storage.get(key);
     }
 
     removeItem(key: string): void {
@@ -48,7 +48,11 @@ class StorageClass {
     }
 
     load<T = unknown>(key: string) : T | undefined {
-        return this.storage.getItem(key) as T;
+        const data = this.storage.getItem(this.prefix + key);
+        if (data) {
+            return JSON.parse(data) as T;
+        }
+        return undefined;
     }
 
     delete(key: string): void {
