@@ -1,4 +1,4 @@
-type RequestMethodType = 'GET' | 'POST' | 'PATCH';
+type RequestMethodType = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 
 type RequestOptionsType = {
     url: string;

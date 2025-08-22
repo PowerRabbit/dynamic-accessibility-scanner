@@ -29,20 +29,27 @@ const CrawlPage = ({ uuid }: Props) => {
         };
 
         const fetchCrawlsData = async () => {
-            const result = await communicationService.get<CrawlResponseType>({
-                url: `crawls/${uuid}`,
-            });
-            setPagesData(result.pages);
-            hasFetched.current = true;
+            let shouldContinue = false;
+            try {
+                const result = await communicationService.get<CrawlResponseType>({
+                    url: `crawls/${uuid}`,
+                });
+                setPagesData(result.pages);
+                shouldContinue = !result.endedAt;
+            } catch(e) {
+                shouldContinue = false;
+            } finally {
+                hasFetched.current = true;
+            }
 
-            if (result.endedAt) {
+            if (shouldContinue) {
+                setInProgress(true);
+            } else {
                 setInProgress(false);
                 if (intervalRef.current) {
                     clearInterval(intervalRef.current);
                     intervalRef.current = null;
                 }
-            } else {
-                setInProgress(true);
             }
         };
 

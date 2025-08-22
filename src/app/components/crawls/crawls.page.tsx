@@ -1,9 +1,11 @@
 'use client';
 
 import { communicationService } from '@/app/fe-services/communication/communication.service';
-import { Table } from '@chakra-ui/react';
+import { Button, Icon, Spinner, Table } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { HiTrash } from 'react-icons/hi';
+import { AlertDialog } from '../alert/alert.component';
 
 type CrawlDataType = {
     id: number;
@@ -16,6 +18,13 @@ type CrawlDataType = {
 const CrawlsPage = () => {
     const [crawls, setCrawlsData] = useState<CrawlDataType[]>();
     const hasFetched = useRef(false);
+
+    const deleteCrawl = (uuid: string) => {
+        setCrawlsData(crawls?.filter(c => c.uuid !== uuid));
+        communicationService.delete({
+            url: 'crawls/' + uuid,
+        });
+    };
 
     useEffect(() => {
         if (hasFetched.current) {
@@ -45,6 +54,7 @@ const CrawlsPage = () => {
                         <Table.ColumnHeader>Started</Table.ColumnHeader>
                         <Table.ColumnHeader>Finished</Table.ColumnHeader>
                         <Table.ColumnHeader></Table.ColumnHeader>
+                        <Table.ColumnHeader></Table.ColumnHeader>
                     </Table.Row>
                 </Table.Header>
                 <Table.Body>
@@ -54,11 +64,43 @@ const CrawlsPage = () => {
                         <Table.Cell>{crawl.started_at}</Table.Cell>
                         <Table.Cell>{crawl.ended_at}</Table.Cell>
                         <Table.Cell textAlign="end"><Link href={`/crawls/${crawl.uuid}`}>See results</Link></Table.Cell>
+                        <Table.Cell>
+                            {crawl.ended_at ?
+                            <AlertDialog
+                                title="Delete Crawl results?"
+                                content={
+                                    <>
+                                        <p>
+                                            {crawl.base_url}
+                                        </p>
+                                        <br/>
+                                        <p>
+                                            {crawl.ended_at}
+                                        </p>
+                                        <br/>
+                                        <p>
+                                            This action cannot be undone. <br/>This will permanently delete this crawl results.
+                                        </p>
+                                    </>
+                                }
+                                actionText="Delete"
+                                onAction={() => {
+                                    deleteCrawl(crawl.uuid);
+                                }}
+                                triggerButton={
+                                    <Button type="button" aria-label='Delete crawl' colorPalette="red">
+                                        <Icon><HiTrash /></Icon>
+                                    </Button>
+                                }
+                            />
+                            : ''}
+                        </Table.Cell>
                     </Table.Row>
                     ))}
                 </Table.Body>
             </Table.Root>
         </div>
+        {!hasFetched.current ? <p><Spinner /> Loading...</p> : ''}
     </div>
 }
 
