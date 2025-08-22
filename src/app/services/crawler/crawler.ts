@@ -33,7 +33,7 @@ export class Crawler {
     private browserOptions: InitOptionsType;
     private crawlOptions: CrawlOptionsType;
     private limitUrl: string;
-    private readonly pagesLimit = 5;
+    private readonly pagesLimit = 2;
     private readonly beforeScanTimeout = 1000;
     private scannedPages: Set<string> = new Set();
     private pagesToScan: Set<string> = new Set();
@@ -99,7 +99,7 @@ export class Crawler {
 
         this.scanFinished = (new Date()).toUTCString();
         await db('crawls')
-            .where({ id: crawlId })
+            .where({ uuid: crawlId })
             .update({ ended_at: this.scanFinished });
         browserService.stop();
     }
@@ -134,40 +134,41 @@ export class Crawler {
         }
     }
 
-    private async saveCrawl(params: {url: string, uuid: string, startedAt: string}): Promise<number> {
+    private async saveCrawl(params: {url: string, uuid: string, startedAt: string}): Promise<string> {
         const { url, startedAt, uuid } = params;
-        const [crawlId] = await db('crawls').insert({
+        await db('crawls').insert({
             uuid,
             base_url: url,
             started_at: startedAt,
         });
 
-        return crawlId;
+        return uuid;
     }
 
     private async savePage(params: {
         url: string,
-        crawlId: number;
+        crawlId: string;
         title?: string,
         violations?: axe.Result[];
         incomplete?: axe.Result[];
         scanError?: string;
     }): Promise<void> {
         const { url, crawlId, violations, incomplete, scanError, title } = params;
+        const uuid = crypto.randomUUID();
 
-        const [{ id }] = await db('pages').insert({
-            id: crypto.randomUUID(),
-            crawl_id: crawlId,
+        await db('pages').insert({
+            uuid,
+            crawl_uuid: crawlId,
             url,
             title: title || '',
             violations_amount: violations?.length ?? 0,
             incomplete_amount: incomplete?.length ?? 0,
             scan_error: scanError || '',
             scanned_at: (new Date()).toUTCString(),
-        }).returning('id');
+        });
 
         await db('page_data').insert({
-            page_id: id,
+            page_uuid: uuid,
             violations: JSON.stringify(violations || []),
             incomplete: JSON.stringify(incomplete || []),
         });

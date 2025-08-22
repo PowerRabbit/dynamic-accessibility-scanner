@@ -4,7 +4,6 @@ import db from '@/app/services/utils/knex';
 import { PageType } from '@/types/page.type';
 
 type CrawlType = {
-    id: number;
     uuid: string;
     base_url: string;
     started_at: string;
@@ -25,14 +24,14 @@ async function getHandler(
     }
 
     const pages = await db<PageType>('pages')
-        .where({ crawl_id: crawl.id })
+        .where({ crawl_uuid: crawl.uuid })
         .select('*');
 
     return NextResponse.json({
         startedAt: crawl.started_at,
         endedAt: crawl.ended_at,
         pages: pages.map(p => ({
-            id: p.id,
+            id: p.uuid,
             violations: p.violations_amount,
             incomplete: p.incomplete_amount,
             url: p.url,
@@ -43,4 +42,17 @@ async function getHandler(
     }, { status: 200 });
 }
 
+async function deleteHandler(
+    _request: Request,
+    { params }: { params: { uuid: string } }
+) {
+    const { uuid } = await Promise.resolve(params);
+    await db('crawls')
+        .where({ uuid })
+        .del();
+
+    return NextResponse.json({}, { status: 200 });
+}
+
+export const DELETE = withErrorHandler<{ uuid: string }>(deleteHandler);
 export const GET = withErrorHandler<{ uuid: string }>(getHandler);

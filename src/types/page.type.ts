@@ -1,8 +1,8 @@
 import { AccessibilityIssue } from "./scan.types";
 
 export type PageType = {
-    crawl_id: number;
-    id: string;
+    crawl_uuid: string;
+    uuid: string;
     scan_error: string;
     scanned_at: string;
     title: string;

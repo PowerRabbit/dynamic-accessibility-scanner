@@ -1,45 +1,39 @@
 exports.up = async function (knex) {
   await knex.schema.createTable('crawls', (table) => {
-    table.increments('id').primary();
-    table.uuid('uuid');
+    table.string('uuid', 36).primary();
     table.string('base_url').notNullable();
-    table.text('started_at');
-    table.text('ended_at').nullable();
+    table.timestamp('started_at');
+    table.timestamp('ended_at').nullable();
   });
 
   await knex.schema.createTable('pages', (table) => {
-    table.uuid('id').primary();
-    table
-      .integer('crawl_id')
-      .unsigned()
+    table.string('uuid', 36).primary();
+    table.string('crawl_uuid', 36)
       .notNullable()
-      .references('id')
+      .references('uuid')
       .inTable('crawls')
       .onDelete('CASCADE');
 
     table.string('url').notNullable();
-
     table.text('title');
     table.integer('violations_amount');
     table.integer('incomplete_amount');
     table.text('scan_error');
-    table.text('scanned_at');
+    table.timestamp('scanned_at');
   });
 
   await knex.schema.createTable('page_data', (table) => {
-      table
-        .integer('page_id')
-        .unsigned()
-        .notNullable()
-        .references('id')
-        .inTable('pages')
-        .onDelete('CASCADE');
+    table.string('page_uuid', 36)
+      .notNullable()
+      .references('uuid')
+      .inTable('pages')
+      .onDelete('CASCADE');
+    table.primary(['page_uuid']);
 
-      table.text('violations');
-      table.text('incomplete');
-    });
+    table.text('violations');
+    table.text('incomplete');
+  });
 };
-
 
 exports.down = async function (knex) {
   await knex.schema.dropTableIfExists('page_data');
