@@ -8,7 +8,9 @@ import { InitOptionsType, ScanPageOptions, ScanResults } from "@/app/types/scann
 
 const defaultBrowserOptions: InitOptionsType = {
     headless: true,
-}
+    viewHeight: 1280,
+    viewWidth: 800,
+};
 
 class BrowserClass {
 
@@ -143,8 +145,8 @@ class BrowserClass {
             ];
 
             let viewPort: Viewport | null = {
-                width: viewWidth || 1280,
-                height: viewHeight || 800,
+                width: viewWidth || defaultBrowserOptions.viewWidth,
+                height: viewHeight || defaultBrowserOptions.viewHeight,
             };
 
             if (!headless) {

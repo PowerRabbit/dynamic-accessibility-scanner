@@ -11,14 +11,9 @@ import './settings-form.css';
 import { useDialog } from '../dialog/dialog.component';
 import { useEffect, useState } from 'react';
 import { storageService } from '@/app/fe-services/storage/storage.service';
+import { ScannerSettingsType } from '@/app/types/settings.type';
 
-export type ScannerSettingsType = {
-    viewHeight: number;
-    viewWidth: number;
-    maxPages: number;
-}
-
-const defaultSettings: ScannerSettingsType = {
+export const defaultSettings: ScannerSettingsType = {
     viewHeight: 1280,
     viewWidth: 1024,
     maxPages: 5,

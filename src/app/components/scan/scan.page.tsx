@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import './scan.page.css';
-import { Button, Tabs, useDisclosure } from "@chakra-ui/react";
+import { Button, Tabs } from "@chakra-ui/react";
 import type { AccessibilityIssue } from "../../../types/scan.types";
 import ScanPageContext from "./scan.context";
 import { communicationService } from "@/app/fe-services/communication/communication.service";
@@ -11,7 +11,9 @@ import { UrlForm } from "../url-form/url-form.component";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { DasDialog } from "../dialog/dialog.component";
-import { SettingsForm } from "../settings-form/settings-form.component";
+import { defaultSettings, SettingsForm } from "../settings-form/settings-form.component";
+import { storageService } from "@/app/fe-services/storage/storage.service";
+import { ScannerSettingsType } from "@/app/types/settings.type";
 
 type ScanResult = {
     incomplete: AccessibilityIssue[],
@@ -47,7 +49,6 @@ const ScanPage = () => {
     const [violations, setViolations] = useState<AccessibilityIssue[]>([]);
     const [incompletes, setIncompletes] = useState<AccessibilityIssue[]>([]);
     const router = useRouter();
-    const { onClose } = useDisclosure();
 
     const onScanError = <T,>(e: unknown): T => {
         setError((e as Error).message);
@@ -60,10 +61,12 @@ const ScanPage = () => {
     };
 
     const requestScan = async (url: string) => {
+        const settings = storageService.load<ScannerSettingsType>('scannerSettings') || defaultSettings;
         const result = await communicationService.post<ScanResult>({
             url: 'scan-page',
             payload: {
-                url
+                url,
+                settings
             },
             onErrorFallback: onScanError,
         });
@@ -81,10 +84,12 @@ const ScanPage = () => {
     }
 
     const requestCrawl = async (url: string) => {
+        const settings = storageService.load<ScannerSettingsType>('scannerSettings') || defaultSettings;
         const { uuid } = await communicationService.post<{ uuid: string}>({
             url: 'crawls',
             payload: {
-                url
+                url,
+                settings
             },
             onErrorFallback: onScanError,
         });

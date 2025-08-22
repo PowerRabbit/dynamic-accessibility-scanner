@@ -1,5 +1,6 @@
 import { Crawler } from '@/app/services/crawler/crawler';
 import db from '@/app/services/utils/knex';
+import { ScannerSettingsType } from '@/app/types/settings.type';
 import { withErrorHandler } from '@/lib/api-handler';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -11,7 +12,7 @@ type CrawlDataType = {
 const scansOrigins: Map<string, CrawlDataType> = new Map();
 
 async function postHandler(req: NextRequest): Promise<NextResponse> {
-  const { url } = await req.json();
+  const { url, settings } = (await req.json()) as { url: string, settings: ScannerSettingsType};
 
     if (!url) {
         return NextResponse.json({ message: 'Missing URL' }, { status: 400 });
@@ -31,13 +32,17 @@ async function postHandler(req: NextRequest): Promise<NextResponse> {
         return NextResponse.json(existingCrawl, { status: 200 });
     }
 
+    const { viewHeight, viewWidth, maxPages } = settings;
 
     const crawler = new Crawler({
         browser: {
             headless: true,
+            viewHeight,
+            viewWidth,
         },
         crawl: {
             startUrl: scanUrl,
+            maxPages,
         }
     });
 

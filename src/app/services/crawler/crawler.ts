@@ -33,7 +33,6 @@ export class Crawler {
     private browserOptions: InitOptionsType;
     private crawlOptions: CrawlOptionsType;
     private limitUrl: string;
-    private readonly pagesLimit = 2;
     private readonly beforeScanTimeout = 1000;
     private scannedPages: Set<string> = new Set();
     private pagesToScan: Set<string> = new Set();
@@ -61,7 +60,7 @@ export class Crawler {
         }
         this.scanStarted = (new Date()).toUTCString();
 
-        await browserService.start({headless: true});
+        await browserService.start(this.browserOptions);
 
         const crawlId = await this.saveCrawl({ url: startUrl, startedAt: this.scanStarted, uuid: this.uuid});
 
@@ -72,7 +71,7 @@ export class Crawler {
         })
     }
 
-    async run(crawlId: number): Promise<void> {
+    async run(crawlId: string): Promise<void> {
         for await (const page of getNewLinkForScan(this.pagesToScan, this.scannedPages, this.beforeScanTimeout)) {
             const results = await this.scanPage(page);
             if (results instanceof ScanError) {
@@ -117,8 +116,10 @@ export class Crawler {
     }
 
     private updateLinksToScan(links: string[]): void {
+        const pagesLimit = this.crawlOptions.maxPages || 5;
+
         for (const l of links) {
-            if (this.pagesToScan.size >= this.pagesLimit) {
+            if (this.pagesToScan.size >= pagesLimit) {
                 break;
             }
             try {

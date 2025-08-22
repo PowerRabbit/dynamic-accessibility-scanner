@@ -1,16 +1,17 @@
 import { browserService } from '@/app/services/browser/browser.service';
 import { ScanError } from '@/app/services/browser/scan-error.factory';
+import { ScannerSettingsType } from '@/app/types/settings.type';
 import { withErrorHandler } from '@/lib/api-handler';
 import { NextRequest, NextResponse } from 'next/server';
 
 async function handler(req: NextRequest): Promise<NextResponse> {
-  const { url } = await req.json();
+    const { url, settings } = (await req.json()) as { url: string, settings: ScannerSettingsType};
 
     if (!url) {
         return NextResponse.json({ message: 'Missing URL' }, { status: 400 });
     }
 
-    return browserService.start({headless: true}).then(async () => {
+    return browserService.start({headless: true, ...settings}).then(async () => {
 
         const results = await browserService.scanPage(url, {
             getPicture: true,
