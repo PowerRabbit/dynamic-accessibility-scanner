@@ -6,7 +6,7 @@ import { ScanError, scanErrorFactory } from "./scan-error.factory";
 import sharp from "sharp";
 import { InitOptionsType, ScanPageOptions, ScanResults } from "@/app/types/scanner.type";
 
-const defaultBrowserOptions: InitOptionsType = {
+const defaultBrowserOptions = {
     headless: true,
     viewHeight: 1280,
     viewWidth: 800,

@@ -3,8 +3,8 @@ import { ScannerSettingsType } from "./settings.type";
 
 export type InitOptionsType = {
     headless: boolean,
-    viewHeight: number;
-    viewWidth: number;
+    viewHeight?: number;
+    viewWidth?: number;
 };
 
 export type ScanResults = {

@@ -8,7 +8,6 @@ import { HiTrash } from 'react-icons/hi';
 import { DasDialog } from '../dialog/dialog.component';
 
 type CrawlDataType = {
-    id: number;
     uuid: string;
     base_url: string;
     started_at: string;
@@ -59,7 +58,7 @@ const CrawlsPage = () => {
                 </Table.Header>
                 <Table.Body>
                     {crawls?.map((crawl) => (
-                    <Table.Row key={crawl.id}>
+                    <Table.Row key={crawl.uuid}>
                         <Table.Cell>{crawl.base_url}</Table.Cell>
                         <Table.Cell>{crawl.started_at}</Table.Cell>
                         <Table.Cell>{crawl.ended_at}</Table.Cell>

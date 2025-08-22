@@ -11,7 +11,6 @@ export async function POST(req: NextRequest) {
         const results = await browserService.startPageViewMode(url);
 
         if (results instanceof ScanError ) {
-        //    browserService.stop();
             return NextResponse.json({ message: results.message }, { status: 400 });
         }
 
