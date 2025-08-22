@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import './scan.page.css';
-import { Tabs } from "@chakra-ui/react";
+import { Button, Tabs, useDisclosure } from "@chakra-ui/react";
 import type { AccessibilityIssue } from "../../../types/scan.types";
 import ScanPageContext from "./scan.context";
 import { communicationService } from "@/app/fe-services/communication/communication.service";
@@ -10,6 +10,8 @@ import { ViolationItem } from "../violation-item/violation-item.component";
 import { UrlForm } from "../url-form/url-form.component";
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { DasDialog } from "../dialog/dialog.component";
+import { SettingsForm } from "../settings-form/settings-form.component";
 
 type ScanResult = {
     incomplete: AccessibilityIssue[],
@@ -45,6 +47,7 @@ const ScanPage = () => {
     const [violations, setViolations] = useState<AccessibilityIssue[]>([]);
     const [incompletes, setIncompletes] = useState<AccessibilityIssue[]>([]);
     const router = useRouter();
+    const { onClose } = useDisclosure();
 
     const onScanError = <T,>(e: unknown): T => {
         setError((e as Error).message);
@@ -149,6 +152,24 @@ const ScanPage = () => {
         }
     };
 
+    const renderSettings = () => {
+
+        return <DasDialog
+            title="Scan settings"
+            type='dialog'
+            content={
+                <SettingsForm></SettingsForm>
+            }
+            showAction={false}
+            showCancel={false}
+            triggerButton={
+                <Button type="button">
+                    Settings
+                </Button>
+            }
+        />
+    }
+
     return <div className="page-wrapper">
         <h1>Scan Page</h1>
 
@@ -158,7 +179,7 @@ const ScanPage = () => {
             error={error}></UrlForm>
 
         <br></br>
-        <Link href="/crawls">Crawls</Link> | <Link href="/settings">Settings</Link>
+        <Link href="/crawls">Crawls</Link> | {renderSettings()}
 
         {actualUrl ?
             <div className="results-wrapper">

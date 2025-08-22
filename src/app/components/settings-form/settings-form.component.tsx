@@ -1,88 +1,106 @@
 import {
     Button,
     Field,
-    HStack,
     Input,
-    Spinner,
     Stack,
-    Portal,
-    Select,
-    createListCollection,
-} from '@chakra-ui/react';
-import { type FC } from 'react';
-import './settings-form.css';
+    Fieldset,
+    Separator,
 
-export const SettingsForm: FC<{ submit: () => void, inProgress: boolean }> = ({ submit, inProgress }) => {
+} from '@chakra-ui/react';
+import './settings-form.css';
+import { useDialog } from '../dialog/dialog.component';
+import { useEffect, useState } from 'react';
+import { storageService } from '@/app/fe-services/storage/storage.service';
+
+export type ScannerSettingsType = {
+    viewHeight: number;
+    viewWidth: number;
+    maxPages: number;
+}
+
+const defaultSettings: ScannerSettingsType = {
+    viewHeight: 1280,
+    viewWidth: 1024,
+    maxPages: 5,
+};
+
+export const SettingsForm = () => {
+    const { close } = useDialog();
+    const [formData, setFormData] = useState({
+        viewHeight: defaultSettings.viewHeight,
+        viewWidth: defaultSettings.viewWidth,
+        maxPages: defaultSettings.maxPages,
+    });
+
+    useEffect(() => {
+        const storedSettings = storageService.load<ScannerSettingsType>('scannerSettings') || defaultSettings;
+        setFormData({
+            viewHeight: storedSettings.viewHeight ?? defaultSettings.viewHeight,
+            viewWidth: storedSettings.viewWidth ?? defaultSettings.viewWidth,
+            maxPages: storedSettings.maxPages ?? defaultSettings.maxPages,
+        });
+    }, []);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type } = e.target;
+
+        if (type === 'number') {
+            setFormData((prev) => ({ ...prev, [name]: Number(value) }));
+        } else {
+            setFormData((prev) => ({ ...prev, [name]: value }));
+        }
+    };
 
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        if (inProgress) {
-            return;
-        }
-
-        submit();
+        storageService.save('scannerSettings', formData);
+        close();
     };
 
-    const devices = createListCollection({
-        items: [
-            { label: "No", value: "no" },
-            { label: "iPhone 12 Pro", value: "iphone_12pro" },
-            { label: "Samsung Galaxy S20 Ultra", value: "samsung_galaxy_s20_ultra" },
-        ],
-    })
+    const onReset = (e: React.FormEvent) => {
+        setFormData(defaultSettings);
+    };
 
     return (
-        <form onSubmit={onSubmit}>
-            <h2>View</h2>
-            {/* NOT READY */}
-            {/* <Stack gap="2" align="flex-start" maxW="sm">
-                <Select.Root collection={devices} defaultValue={["no"]} onValueChange={(e) => {console.log(e.value[0])}}>
-                    <Select.HiddenSelect />
-                        <Select.Label>Device</Select.Label>
-                    <Select.Control>
-                        <Select.Trigger>
-                            <Select.ValueText placeholder="Select virtual device" />
-                        </Select.Trigger>
-                        <Select.IndicatorGroup>
-                            <Select.Indicator />
-                        </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                        <Select.Positioner>
-                            <Select.Content>
-                            {devices.items.map((devices) => (
-                                <Select.Item item={devices} key={devices.value}>
-                                    {devices.label}
-                                    <Select.ItemIndicator />
-                                </Select.Item>
-                            ))}
-                            </Select.Content>
-                        </Select.Positioner>
-                    </Portal>
-                </Select.Root>
-                <Field.Root>
-                    <Stack direction={{ base: "column", md: "row" }}>
-                            <Field.Label>Height</Field.Label>
-                            <Input
-                                type="number"
-                                value="" /> px
-                    </Stack >
-                </Field.Root>
-                <Field.Root>
-                    <Stack direction={{ base: "column", md: "row" }}>
-                            <Field.Label>Width</Field.Label>
-                            <Input
-                                type="number"
-                                value="" /> px
-                    </Stack >
-                </Field.Root>
-                <br />
-                <HStack>
-                    <Button type="submit" data-type="scan">Update Settings</Button>
-                </HStack >
-                {inProgress && <p><Spinner/> Updating...</p>}
-            </Stack> */}
+        <form onSubmit={onSubmit} onReset={onReset}>
+            <Stack gap="2" align="flex-start" maxW="sm">
+                <Fieldset.Root size="lg" maxW="md">
+                    <Fieldset.Legend>Viewport size (headless)</Fieldset.Legend>
+                    <Fieldset.Content>
+                        <Field.Root>
+                            <Stack direction={{ base: "column", md: "row" }}>
+                                    <Field.Label>Height</Field.Label>
+                                    <Input
+                                        type="number"
+                                        name="viewHeight"
+                                        onChange={handleChange}
+                                        value={formData.viewHeight} /> px
+                            </Stack >
+                        </Field.Root>
+                        <Field.Root>
+                            <Stack direction={{ base: "column", md: "row" }}>
+                                    <Field.Label>Width</Field.Label>
+                                    <Input
+                                        type="number"
+                                        name="viewWidth"
+                                        onChange={handleChange}
+                                        value={formData.viewWidth} /> px
+                            </Stack >
+                        </Field.Root>
+                    </Fieldset.Content>
+                </Fieldset.Root>
+            </Stack>
+            <Separator />
+            <Field.Root>
+                <Field.Label>Max pages to crawl</Field.Label>
+                <Input
+                    type="number"
+                    name="maxPages"
+                    onChange={handleChange}
+                    value={formData.maxPages} />
+            </Field.Root>
+            <br /><br />
+            <Button type="submit">Update</Button> <Button type="reset" variant="outline">Reset</Button>
         </form>
     )
 }

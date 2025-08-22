@@ -5,7 +5,7 @@ import { Button, Icon, Spinner, Table } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { HiTrash } from 'react-icons/hi';
-import { AlertDialog } from '../alert/alert.component';
+import { DasDialog } from '../dialog/dialog.component';
 
 type CrawlDataType = {
     id: number;
@@ -66,8 +66,10 @@ const CrawlsPage = () => {
                         <Table.Cell textAlign="end"><Link href={`/crawls/${crawl.uuid}`}>See results</Link></Table.Cell>
                         <Table.Cell>
                             {crawl.ended_at ?
-                            <AlertDialog
+                            <DasDialog
                                 title="Delete Crawl results?"
+                                type='alertdialog'
+                                actionColor='red'
                                 content={
                                     <>
                                         <p>
